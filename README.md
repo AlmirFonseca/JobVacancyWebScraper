@@ -12,9 +12,10 @@ Esperamos que esse trabalho possa ser útil durante a busca por vagas de estági
 
 ### Alunos
 - **Almir Augusto Fonseca**
-- **Geroge Rodrigues Vaz**
+- **George Rodrigues Vaz**
 - **Mariana Lima de Brito Oliveira**
 - **Pedro Thomaz Conzatti Martins**
+- **Vinícius Antunes de Sousa**
 
 ### Metáfora do Projeto
 
