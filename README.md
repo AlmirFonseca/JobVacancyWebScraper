@@ -18,7 +18,11 @@ Esperamos que esse trabalho possa ser útil durante a busca por vagas de estági
 
 ### Metáfora do Projeto
 
+Imagine uma grande **mina** chamada "Internet", onde as preciosidades escondidas no subterrâneo são as vagas de emprego e estágios. Estas **gemas** ocultas, cada uma com seus prórpios requisitos e características únicas, estão espalhadas por toda a mina, e para encontrá-las é necessário um trabalho árduo de escavação.
 
+É exatamente para auxiliar nessa mineração que o **JobVacancyWebScraper** foi criado. Essa **máquina de garimpo** é uma ferramenta que, alimentada com as **instruções do usuário** (que representam as competências a serem mapeadas, nível de senioridade, etc.), **garimpa** a mina da internet em busca das vagas de emprego/estágio que melhor se encaixam no perfil do usuário. Após localizar algumas desses itens de valor, essas gexmas são  **expostas** a partir da **interface** da máquina, onde o usuário visualiza os resultados num dashboard.
+
+Além disso, a máquina oferece em sua interface, a um clique de distância, a opção de **lapidar** uma determinada gema automaticamente, transformando a vaga minerada em uma possibilidade real de emprego/estágio. Para isso, a máquina envia um email pré-formatado para o endereço de contato da vaga, contendo as informações do usuário e uma mensagem de interesse na vaga.
 
 ### Melhorias Futuras
 
