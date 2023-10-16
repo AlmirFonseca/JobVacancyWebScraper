@@ -244,3 +244,39 @@
 1. Se não houver vagas correpondentes as seleções do usuário, o sisteme exibe uma mensagem indicando a ausência de resultados.
 
 **Pós-condições**: O usuário obtém uma visão abrangente e organizada de emprego/estágio disponíveis.
+
+---
+
+## Caso de Uso 9
+
+### Acompanhamento de Candidaturas
+
+**Ator**: Estudante
+
+**Pré-condições**: O estudante deve estar registrado e logado no sistema.
+
+**Fluxo Principal**:
+1. O estudante navega até a seção de acompanhamento de candidaturas.
+2. O sistema exibe uma lista de vagas para as quais o estudante se candidatou.
+3. O estudante pode visualizar o status de cada candidatura, como por exemplo, se o email enviado foi respondido.
+
+**Fluxo Alternativo**:
+1. Se o estudante não tiver se candidatado a nenhuma vaga, o sistema exibe uma mensagem indicando a ausência de resultados.
+
+**Pós-condições**: O estudante pode acompanhar o status de suas candidaturas.
+
+---
+
+## Caso de Uso 10
+
+### Análise de Tendências
+
+**Ator**: Estudante
+
+**Pré-condições**: O estudante deve estar registrado e logado no sistema.
+
+**Fluxo Principal**:
+1. O estudante navega até a seção de análise de tendências.
+2. O sistema exibe um painel contendo informações sobre as tendências do mercado de trabalho, como por exemplo, as competências mais demandadas.
+
+**Pós-condições**: O estudante pode obter informações relevantes sobre o mercado de trabalho.

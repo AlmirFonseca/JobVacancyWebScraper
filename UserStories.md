@@ -194,3 +194,45 @@
 - O sistema deve apresentar um dashboard funcional e responsivo que exiba corretamente todas as informações relevantes das vagas coletadas.
 - Os filtros e opções de classificação devem ser implementados e funcionar corretamente, proporcionando uma experiência de usuário eficaz na navegação das vagas.
 - A interface do usuário do dashboard deve ser testada para garantir a facilidade de uso e a eficiência na visualização e interação com as vagas disponíveis.
+
+---
+
+## História de Usuário 9
+
+### Acompanhamento de Candidaturas
+
+**Como** um usuário que se candidatou a vagas,
+
+**Quero** acompanhar o status das minhas candidaturas,
+
+**Para** ter uma visão geral de todas as minhas candidaturas e saber quais foram respondidas.
+
+### Critérios de Aceitação
+
+- O sistema deve exibir uma lista de vagas para as quais o usuário se candidatou.
+- O usuário deve ser capaz de visualizar o status de cada candidatura, como por exemplo, se o email enviado foi respondido.
+- O usuário deve ser capaz de interagir com cada vaga para visualizar mais detalhes.
+
+### Definição de Pronto
+
+- O sistema deve apresentar uma interface de usuário funcional e responsiva que exiba corretamente todas as informações relevantes das vagas para as quais o usuário se candidatou.
+
+---
+
+## História de Usuário 10
+
+### Análise de Tendências
+
+**Como** um usuário interessado em tendências de mercado,
+
+**Quero** acessar um painel com informações sobre as tendências do mercado de trabalho,
+
+**Para** ter uma visão geral das oportunidades mais populares e das competências mais demandadas.
+
+### Critérios de Aceitação
+
+- O sistema deve exibir um painel contendo informações sobre as tendências do mercado de trabalho, como por exemplo, as competências mais demandadas.
+
+### Definição de Pronto
+
+- O sistema deve apresentar um painel funcional e responsivo que exiba corretamente todas as informações relevantes sobre as tendências do mercado de trabalho.
