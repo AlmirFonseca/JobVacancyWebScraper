@@ -7,6 +7,7 @@
 3. [Caso de Uso 3](#caso-de-uso-3)
 4. [Caso de Uso 4](#caso-de-uso-4)
 5. [Caso de Uso 5](#caso-de-uso-5)
+6. [Caso de Uso 6](#caso-de-uso-6)
 
 ---
 

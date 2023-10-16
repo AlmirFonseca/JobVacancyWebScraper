@@ -7,6 +7,7 @@
 3. [História de Usuário 3](#história-de-usuário-3)
 4. [História de Usuário 4](#história-de-usuário-4)
 5. [História de Usuário 5](#história-de-usuário-5)
+6. [História de Usuário 6](#história-de-usuário-6)
 
 ---
 
