@@ -10,6 +10,8 @@
 6. [Caso de Uso 6](#caso-de-uso-6)
 7. [Caso de Uso 7](#caso-de-uso-7)
 8. [Caso de Uso 8](#caso-de-uso-8)
+9. [Caso de Uso 9](#caso-de-uso-9)
+10. [Caso de Uso 10](#caso-de-uso-10)
 
 ---
 
