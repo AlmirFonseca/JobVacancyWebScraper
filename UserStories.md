@@ -4,6 +4,8 @@
 
 1. [História de Usuário 1](#história-de-usuário-1)
 2. [História de Usuário 2](#história-de-usuário-2)
+3. [História de Usuário 3](#história-de-usuário-3)
+4. [História de Usuário 4](#história-de-usuário-4)
 
 ---
 
@@ -48,3 +50,51 @@
 ### Definição de Pronto
 
 - O sistema deve ser capaz de armazenar o nível de senioridade selecionado pelo usuário;
+
+---
+
+## História de Usuário 3:
+
+### Cadastro no Sistema
+
+**Como** um estudante não cadastrado no sistema,
+
+**Quero** fazer o cadastro, inserindo minhas informações,
+
+**Para** que o sistema crie minha conta de usuário e eu possa utilizar suas funcionalidades.
+
+### Critérios de Aceitação
+
+- O usuário deve ser capaz de preencher todos os campos;
+- O usuário deve inserir uma senha segura (contendo letras maiúsculas e minúsculas, números e carcteres especiais e possuindo pelo menos 8 caracteres);
+- O usuário cadastrado não deve se cadastrar novamente (o endereço de e-mail ou o nome de usuário inserido não podem ser utilizado por outro usuário no sistema);
+- Os campos devem ser preencidos e validados;
+- Após preencher seus dados, o usuário deve ser capaz de finalizar seu cadastro através de um botão. 
+
+
+### Definição de Pronto
+
+- O sistema deve ser capaz de armazenar os dados de cadastro fornecidos pelo usuário;
+
+---
+
+## História de Usuário 4:
+
+### Login no Sistema
+
+**Como** um estudante querendo acessar o sistema,
+
+**Quero** fazer o login,
+
+**Para** que possa utilizar as funcionalidades do sistema.
+
+### Critérios de Aceitação
+
+- O usuário deve ser capaz de inserir suas credenciais e apertar um botão para realizar o login;
+- Os campos devem estar preenchidos antes que seja possivel apertar o botão do login; 
+- O usuário já deve ter um cadastro registrado no sistema;
+- O usuário deve ter uma opção para recuperar a senha, apertando um botão que o redicionará a uma página, que o envia um e-mail com instruções para redefinir a senha.
+
+### Definição de Pronto
+
+- O sistema deve ser capaz de autenticar o usuário e o redirecionar para página apropriada caso as credenciais estejam corretas ou informar o erro no login caso contrário. Deve manter a sessão do usuário ativa, após um login bem-sucedido.
