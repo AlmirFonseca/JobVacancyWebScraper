@@ -177,3 +177,26 @@
 **Pós-condições**: O sistema armazena o currículo enviado pelo estudante.
 
 ---
+
+## Caso de Uso 6:
+
+### Envio de email
+
+**Ator**: Estudante
+
+**Pré-condições**: O estudante deve ter realizado uma pesquisa de vagas e ter vagas identificadas.
+
+**Fluxo Principal**:
+
+1. O estudante navega até a seção de lista de vagas;
+2. O estudante visualiza as vagas que foram encontradas pra ele;
+3. O estudante deve conseguir selecionar as vagas que deseja enviar o email;
+4. O estudante deve conseguir inserie um texto personalizado para ir no corpo do email;
+5. O estudante confirma no fim e deve aguardar um carregamento do envio de cada email;
+6. O estudante deve visualizar a confirmação de emails enviados;
+
+**Fluxo Alternativo**:
+
+2. Caso o estudante não tenha realizado a pesquisa ainda, deve receber a informação que deve receber a pesquisa de vagas antes.
+
+**Pós-condições**: O sistema armazena as vagas que foram enviadas email pelo usuário.

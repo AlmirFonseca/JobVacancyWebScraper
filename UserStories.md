@@ -121,3 +121,27 @@
 ### Definição de Pronto
 
 - O sistema deve ser capaz de exibir um documento feito upload anteriormente e receber um novo documento que deve ser salvo e enviado por email para as vagas que o usuário se candidatar em uma funcionalidade posterior.
+
+---
+
+## História de Usuário 6:
+
+### Envio de email
+
+**Como** um estudante com vagas desejadas,
+
+**Quero** enviar email pra vagas de emprego identificadas,
+
+**Para** ter o email enviado e entrar em contato com os empregadores.
+
+### Critérios de Aceitação
+
+- O usuário deve ser capaz de visualizar as vagas selecionadas pra ele;
+- O usuário deve ser capaz de selecionar vagas que deseja entrar em contato;
+- O usuário precisa ter selecionado alguma vaga para o envio do email;
+- O usuário já deve ter inserido seu currículo e rodado a pesquisa das vagas;
+- O usuário deve ter uma opção para inserie um texto personalizado a ser enviado no email;
+
+### Definição de Pronto
+
+- O sistema deve ser capaz de exibir as vagas pesquisadas pro usuário, permitir a seleção das que ele deseja entrar em contato e possibilitar a inserção de um texto personalizado para o envio no email. Após a seleção e confirmação do usuário, o sistema deve enviar o email pras vagas desejadas e retornar uma confirmação pro usuário do envio.
