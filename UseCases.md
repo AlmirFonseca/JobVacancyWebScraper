@@ -8,6 +8,8 @@
 4. [Caso de Uso 4](#caso-de-uso-4)
 5. [Caso de Uso 5](#caso-de-uso-5)
 6. [Caso de Uso 6](#caso-de-uso-6)
+7. [Caso de Uso 7](#caso-de-uso-7)
+8. [Caso de Uso 8](#caso-de-uso-8)
 
 ---
 
@@ -201,3 +203,44 @@
 2. Caso o estudante não tenha realizado a pesquisa ainda, deve receber a informação que deve receber a pesquisa de vagas antes.
 
 **Pós-condições**: O sistema armazena as vagas que foram enviadas email pelo usuário.
+
+--- 
+
+## Caso de Uso 7:
+
+### Notificação de Novas Vagas
+
+**Ator**: Estudante
+
+**Pré-condições**: O estudante deve estar logado e ter feito a seleção de competências e de nível de senioridade.
+
+**Fluxo Principal**:
+
+1. O usuário acessa a seção de configurações de notificações de novas vagas no sistema.
+2. O sistema exibe opções para configurar a frequência das notificações, como diária, semanal ou mensal.
+3. O usuário seleciona a frequência desejada para receber as notificações.
+4. O sistema envia regularmente e-mails ao usuário com resumos das novas vagas que correspondem às suas preferências e critérios de pesquisa.
+
+**Fluxo Alternativo**:
+
+1. Se o usuário desejar ajustar ou alterar a frequência das notificações após a configuração inicial, ele pode acessar as configurações de notificação e fazer as alterações necessárias.
+
+**Pós-condições**: O usário recebe regularmente e-mails contendo resumos das novas vagas que correspodem às suas preferências e critérios de pesquisa, mantendoó atualizado sobre as oportunidades mais recentes no mercado de trabalho.
+
+---
+
+## Caso de Uso 8
+
+### Visualiação do Dashboard de Vagas
+
+**Ator**: Estudante
+**Pré-condições**: O estudante deve estar logado e ter feito a seleção de competências e de nível de senioridade.
+
+**Fluxo Principal**:
+1. O estudante navega até a seção de dashboard de vagas.
+2. O dashboard exibe uma visão geral das vagas de emprego/estágio compatíveis com as seleções de competência e nível de senioridade feitas pelo estudante.
+
+**Fluxo Alternativo**:
+1. Se não houver vagas correpondentes as seleções do usuário, o sisteme exibe uma mensagem indicando a ausência de resultados.
+
+**Pós-condições**: O usuário obtém uma visão abrangente e organizada de emprego/estágio disponíveis.
