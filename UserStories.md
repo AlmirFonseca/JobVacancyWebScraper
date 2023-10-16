@@ -8,7 +8,8 @@
 4. [História de Usuário 4](#história-de-usuário-4)
 5. [História de Usuário 5](#história-de-usuário-5)
 6. [História de Usuário 6](#história-de-usuário-6)
-
+7. [História de Usuário 7](#história-de-usuário-7)
+8. [História de Usuário 8](#história-de-usuário-8)
 ---
 
 ## História de Usuário 1:
@@ -169,3 +170,27 @@
 ### Definição de Pronto
 
 - O sistema deve ser capaz de monitorar continuamente as fontes de dados e enviar e-mails automatizados aos usuários sempre que novas vagas forem detectadas de acordo com seus critérios de pesquisa.
+
+---
+
+## História de Usuário 8
+
+### Visualização do Dashboard de Vagas
+
+**Como** um usuário interessado em vagas de emprego/estágio,
+
+**Quero** acessar um dashboard com uma visão geral das vagas disponíveis,
+
+**Para** ter uma compreensão clara das oportunidades que correspondem ao meu perfil.
+
+### Critérios de Aceitação
+
+- O sistema deve exibir as informações principais de cada vaga, incluindo título, empresa, localização e requisitos-chave.
+- Deve ser possível aplicar filtros e opções de classificação para refinar a exibição das vagas com base em critérios específicos.
+- O usuário deve ser capaz de interagir com cada vaga para visualizar mais detalhes ou iniciar o processo de candidatura.
+
+### Definição de Pronto
+
+- O sistema deve apresentar um dashboard funcional e responsivo que exiba corretamente todas as informações relevantes das vagas coletadas.
+- Os filtros e opções de classificação devem ser implementados e funcionar corretamente, proporcionando uma experiência de usuário eficaz na navegação das vagas.
+- A interface do usuário do dashboard deve ser testada para garantir a facilidade de uso e a eficiência na visualização e interação com as vagas disponíveis.
