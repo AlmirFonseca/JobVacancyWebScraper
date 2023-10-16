@@ -10,6 +10,8 @@
 6. [História de Usuário 6](#história-de-usuário-6)
 7. [História de Usuário 7](#história-de-usuário-7)
 8. [História de Usuário 8](#história-de-usuário-8)
+9. [História de Usuário 9](#história-de-usuário-9)
+10. [História de Usuário 10](#história-de-usuário-10)
 ---
 
 ## História de Usuário 1:
