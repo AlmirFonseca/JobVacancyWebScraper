@@ -25,7 +25,9 @@
 3. O estudante seleciona as competências que deseja;
 4. O estudante confirma sua seleção;
 
-**Fluxo Alternativo**: 3. Caso o estudante não encontre uma competência desejada na lista, ele pode inserir uma nova competência através de um campo de texto.
+**Fluxo Alternativo**:
+
+3. Caso o estudante não encontre uma competência desejada na lista, ele pode inserir uma nova competência através de um campo de texto.
 
 **Pós-condições**: O sistema armazena as competências selecionadas pelo estudante.
 
@@ -168,7 +170,9 @@
 3. O estudante visualiza os arquivos presentes em seu dispositivo para seleção;
 4. O estudante confirma o upload do currículo;
 
-**Fluxo Alternativo**: 2. Caso o estudante já tenha feito upload de algum documento, deve visualizar o documento inserido e ter a opção de substituir esse documento.
+**Fluxo Alternativo**:
+
+2. Caso o estudante já tenha feito upload de algum documento, deve visualizar o documento inserido e ter a opção de substituir esse documento.
 
 **Pós-condições**: O sistema armazena o currículo enviado pelo estudante.
 
