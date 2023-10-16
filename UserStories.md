@@ -146,3 +146,26 @@
 ### Definição de Pronto
 
 - O sistema deve ser capaz de exibir as vagas pesquisadas pro usuário, permitir a seleção das que ele deseja entrar em contato e possibilitar a inserção de um texto personalizado para o envio no email. Após a seleção e confirmação do usuário, o sistema deve enviar o email pras vagas desejadas e retornar uma confirmação pro usuário do envio.
+
+---
+
+## História de Usuário 7:
+
+### Notificações de Novas Vagas
+
+**Como** um usuário interessado em oportunidades atualizadas,
+
+**Quero** receber notificações por e-mail sobre novas vagas que correspondam ao meu perfil,
+
+**Para** estar sempre ciente das oportunidades mais recentes.
+
+### Critérios de Aceitação
+
+- O usuário deve ter a opção de se inscrever para receber alertas de novas vagas.
+- O sistema deve enviar regularmente e-mails resumindo as novas vagas que correspondem às competências e preferências do usuário.
+- Deve ser possível configurar a frequência das notificações, como diária, semanal ou mensal.
+- O e-mail de notificação deve incluir links diretos para as vagas, facilitando o acesso rápido.
+
+### Definição de Pronto
+
+- O sistema deve ser capaz de monitorar continuamente as fontes de dados e enviar e-mails automatizados aos usuários sempre que novas vagas forem detectadas de acordo com seus critérios de pesquisa.
