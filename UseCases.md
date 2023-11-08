@@ -233,9 +233,10 @@
 
 ## Caso de Uso 8
 
-### Visualiação do Dashboard de Vagas
+### Visualização do Dashboard de Vagas
 
 **Ator**: Estudante
+
 **Pré-condições**: O estudante deve estar logado e ter feito a seleção de competências e de nível de senioridade.
 
 **Fluxo Principal**:
