@@ -325,8 +325,7 @@ class HomePage(tk.Frame):
     
         # Button to add a curriculum
         button = tk.Button(self, text="Adicionar currículo",
-                            # command=lambda: controller.show_frame(AddCurriculumPage))
-                            command=lambda: print("Adicionar currículo"))
+                            command=lambda: controller.show_frame(AddCurriculumPage))
         button.pack()
 
         # Button to see the list of jobs
@@ -442,10 +441,47 @@ class UserPage(tk.Frame):
 
         # TODO: add the logic to edit the user information, and show a message box with the result
 
+class AddCurriculumPage(tk.Frame):
 
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        # Create a header with buttons
+        header = tk.Frame(self)
+        header.pack()
 
-# class AddCurriculumPage(tk.Frame):
-#     pass
+        # Button to go to back to the home page
+        button = tk.Button(header, text="Home",
+                            command=lambda: controller.show_frame(HomePage))
+        button.pack(side="left")
+
+        # Button to go to the compentencies page
+        button = tk.Button(header, text="Competências",
+                            command=lambda: controller.show_frame(CompentenciesPage))
+        button.pack(side="left")
+
+        # Button to go to the seniority level page
+        button = tk.Button(header, text="Nível de Senioridade",
+                            command=lambda: controller.show_frame(SeniorityLevelPage))
+        button.pack(side="left")
+
+        # Create a label and button to add a curriculum (but just the link to save database usage hehe)
+        label = tk.Label(self, text="Adicionar currículo")
+        label.pack(pady=10, padx=10)
+
+        # Curriculum link label
+        curriculum_link_label = tk.Label(self, text="Link do currículo")
+        curriculum_link_label.pack()
+
+        # Curriculum link entry
+        curriculum_link_entry = tk.Entry(self)
+        curriculum_link_entry.pack()
+
+        # Add curriculum button
+        button = tk.Button(self, text="Adicionar",
+                            command=lambda: print("Adicionar currículo"))
+        
+        button.pack()
 
 # class JobListPage(tk.Frame):
 #     pass
