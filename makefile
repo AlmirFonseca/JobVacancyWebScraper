@@ -1,10 +1,8 @@
 build:
-	docker build --platform linux/x86_64 -t a2-es .
+	docker build -t a2-es .
 
 run:
-	docker run  \
-	--rm -p 5900:5900 \
-	--name my-running-app a2-es
+	docker run -p 6080:6080 -p 5900:5900 --name my-running-app a2-es
 
 stop:
 	docker stop my-running-app
@@ -12,7 +10,11 @@ stop:
 
 make sequence_run:
 	make stop
-	# make build
-	# make run
-	docker build -t a2-es .
-	docker run -p 6080:6080 -p 5900:5900 --name my-running-app a2-es
+	make build
+	make run
+
+install:
+	pip3 install -r requirements.txt
+
+test:
+	python3 -m pytest tests --cov=src
