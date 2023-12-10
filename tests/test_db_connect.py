@@ -1,7 +1,5 @@
 import unittest
 from src.infra.pgsql_connection import PostgreSqlServerConnection
-# from email.mime.text import MIMEText
-# from unittest.mock import patch
 
 
 class TestDBConnection(unittest.TestCase):
