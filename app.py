@@ -1,5 +1,5 @@
 import tkinter as tk
-from pages import StartPage, LoginPage, ForgotPasswordPage
+from pages import StartPage, LoginPage, ForgotPasswordPage, SignUpPage
 
 class AppController(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -18,7 +18,7 @@ class AppController(tk.Tk):
 
         self.frames = {}
         # for F in (StartPage, LoginPage, SignUpPage, UserPage):
-        for F in (StartPage, LoginPage, ForgotPasswordPage):
+        for F in (StartPage, LoginPage, ForgotPasswordPage, SignUpPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")

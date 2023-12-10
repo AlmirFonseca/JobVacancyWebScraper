@@ -59,7 +59,7 @@ class LoginPage(tk.Frame):
 
         # Sign up button
         button = tk.Button(self, text="Não tem conta? Cadastre-se",
-                            command=lambda: print("Sign up button clicked"))
+                            command=lambda: controller.show_frame(SignUpPage))
         button.pack()
 class ForgotPasswordPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -125,7 +125,78 @@ class ForgotPasswordPage(tk.Frame):
             messagebox.showerror("Error", "Passwords do not match")
 
 class SignUpPage(tk.Frame):
-    pass
+    # Fields: Name, Surname, Username, Email, Password, Confirm Password
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        # Create a label and button
+        label = tk.Label(self, text="Sign Up Page")
+        label.pack(pady=10, padx=10)
+
+        # Name label
+        name_label = tk.Label(self, text="Nome")
+        name_label.pack()
+
+        # Name entry
+        name_entry = tk.Entry(self)
+        name_entry.pack()
+
+        # Surname label
+        surname_label = tk.Label(self, text="Sobrenome")
+        surname_label.pack()
+
+        # Surname entry
+        surname_entry = tk.Entry(self)
+        surname_entry.pack()
+
+        # Username label
+        username_label = tk.Label(self, text="Nome de usuário")
+        username_label.pack()
+
+        # Username entry
+        username_entry = tk.Entry(self)
+        username_entry.pack()
+
+        # Email label
+        email_label = tk.Label(self, text="Email")
+        email_label.pack()
+
+        # Email entry
+        email_entry = tk.Entry(self)
+        email_entry.pack()
+
+        # Password label
+        password_label = tk.Label(self, text="Senha")
+        password_label.pack()
+
+        # Password entry
+        password_entry = tk.Entry(self, show="*")
+        password_entry.pack()
+
+        # Confirm password label
+        confirm_password_label = tk.Label(self, text="Confirmar senha")
+        confirm_password_label.pack()
+
+        # Confirm password entry
+        confirm_password_entry = tk.Entry(self, show="*")
+        confirm_password_entry.pack()
+
+        # Sign up button
+        button = tk.Button(self, text="Cadastrar",
+                            command=lambda: self.sign_up(name_entry.get(), 
+                                                         surname_entry.get(), 
+                                                         username_entry.get(), 
+                                                         email_entry.get(), 
+                                                         password_entry.get(), 
+                                                         confirm_password_entry.get()))
+        
+        button.pack()
+
+    def sign_up(self, name, surname, username, email, password, confirm_password):
+        
+        # TODO: add the sign up logic
+        pass
 
 class UserPage(tk.Frame):
     pass
