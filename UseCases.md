@@ -12,6 +12,7 @@
 8. [Caso de Uso 8](#caso-de-uso-8)
 9. [Caso de Uso 9](#caso-de-uso-9)
 10. [Caso de Uso 10](#caso-de-uso-10)
+11. [Caso de Uso 11](#caso-de-uso-11)
 
 ---
 
@@ -185,11 +186,35 @@
 
 ## Caso de Uso 6:
 
+### Registro de email para envio de currículos
+
+**Ator**: Estudante
+
+**Pré-condições**: O estudante deve estar registrado e logado no sistema.
+
+**Fluxo Principal**:
+
+1. O estudante navega até a seção de registro de email;
+2. O estudante clica na opção de inserir novo email;
+3. O estudante insere endereço e senha do email;
+
+**Fluxo Alternativo**:
+- Email já cadastrado:
+1. O estudante navega até a seção de registro de email;
+2. O estudante clica na opção de alterar email;
+3. O estudante insere endereço e senha do email;
+
+**Pós-condições**: O sistema guarda localmente o email e senha registrados.
+
+--- 
+
+## Caso de Uso 7:
+
 ### Envio de email
 
 **Ator**: Estudante
 
-**Pré-condições**: O estudante deve ter realizado uma pesquisa de vagas e ter vagas identificadas.
+**Pré-condições**: O estudante deve ter realizado uma pesquisa de vagas, ter vagas identificadas e ter email de envio já cadastrado.
 
 **Fluxo Principal**:
 
@@ -203,12 +228,13 @@
 **Fluxo Alternativo**:
 
 2. Caso o estudante não tenha realizado a pesquisa ainda, deve receber a informação que deve receber a pesquisa de vagas antes.
+3. Caso o estudante não tenha registrado o email de envio, ele deve ser direcionado até a seção de registro de email.
 
 **Pós-condições**: O sistema armazena as vagas que foram enviadas email pelo usuário.
 
 --- 
 
-## Caso de Uso 7:
+## Caso de Uso 8:
 
 ### Notificação de Novas Vagas
 
@@ -231,7 +257,7 @@
 
 ---
 
-## Caso de Uso 8
+## Caso de Uso 9
 
 ### Visualização do Dashboard de Vagas
 
@@ -250,7 +276,7 @@
 
 ---
 
-## Caso de Uso 9
+## Caso de Uso 10
 
 ### Acompanhamento de Candidaturas
 
@@ -270,7 +296,7 @@
 
 ---
 
-## Caso de Uso 10
+## Caso de Uso 11
 
 ### Análise de Tendências
 
