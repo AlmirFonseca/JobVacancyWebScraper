@@ -6,7 +6,24 @@ from email.mime.text import MIMEText
 
 
 class Emailer:
+    """
+    Class used to send emails.
+    """
+    _self = None
+
+    def __new__(cls):
+        # Singleton pattern
+        if cls._self is None:
+            cls._self = super().__new__(cls)
+        return cls._self
+
     def __init__(self):
+        """
+        Initialize the Emailer object
+        self.address: email address used to send emails
+        self.password: password associated with the email address
+        self.smtp_server: host and port of the SMTP associated with each email domain
+        """
         load_dotenv()
         self.address = os.getenv("EMAIL")
         self.password = os.getenv("EMAIL_PASSWORD")
@@ -20,6 +37,13 @@ class Emailer:
         }
 
     def _start_server(self, username: str) -> smtplib.SMTP:
+        """
+        Start the SMTP server
+        Args:
+            username(str): email address. Used to determine the host
+        Returns:
+            SMTP server
+        """
         if not self.is_valid_email(username):
             raise ValueError(f'{username} is not a valid email address')
         domain = username.split('@')[1]
@@ -31,12 +55,12 @@ class Emailer:
     @staticmethod
     def is_valid_email(email: str) -> bool:
         """
-                Checks if the provided email address is valid
-                Args:
-                    email(str): The email address
-                Returns:
-                    True if the provided email address is valid, False otherwise
-                """
+        Checks if the provided email address is valid
+        Args:
+            email(str): The email address
+        Returns:
+            True if the provided email address is valid, False otherwise
+        """
         # compilation error
         # email_regex = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
         # doesn't pass test_is_valid_email_with_plus_number
@@ -46,6 +70,13 @@ class Emailer:
         return bool(re.match(email_regex, email))
 
     def send_email(self, to_email: str, subject: str, body: str) -> None:
+        """
+        Sends an email to the provided email address from self.address
+        Args:
+           to_email(str): Recipient email address. Must be a valid email address, else send_email raises an error.
+           subject(str): Email subject
+           body(str): Email body
+        """
         if not self.is_valid_email(to_email):
             raise ValueError(f'{to_email} is not a valid email address')
 

@@ -50,6 +50,11 @@ class TestEmailer(unittest.TestCase):
         self.assertEqual(send_message_args[0]['From'], 'job.web.scraper@gmx.com')
         self.assertEqual(send_message_args[0]['To'], 'job.web.scraper@gmx.com')
 
+    def test_emailer_is_singleton(self):
+        emailer = Emailer()
+        emailer2 = Emailer()
+        self.assertIs(emailer, emailer2)
+
 
 if __name__ == '__main__':
     unittest.main()
