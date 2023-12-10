@@ -1,13 +1,15 @@
 import sys
 sys.path.append('./src/infra')
 
-from user import User
-from pgsql_connection import PostgreSqlServerConnection
+from src.user.user import User
+from src.helper import valida_autenticacao
+from src.infra.pgsql_connection import PostgreSqlServerConnection
 
 
 class UserDao:
     @staticmethod
-    def create(user: User) -> User:
+    @valida_autenticacao
+    def create(user: User, *args, **kargs) -> User:
         """
         Create a new user in the database
         Args:
@@ -24,7 +26,8 @@ class UserDao:
                 return user
 
     @staticmethod
-    def get_by_email(email: str) -> User:
+    @valida_autenticacao
+    def get_by_email(email: str, *args, **kargs) -> User:
         """
         Get a user by email
         Args:
@@ -41,7 +44,8 @@ class UserDao:
                 return None
 
     @staticmethod
-    def get_by_id(id: int) -> User:
+    @valida_autenticacao
+    def get_by_id(id: int, *args, **kargs) -> User:
         """
         Get a user by id
         Args:
@@ -58,7 +62,8 @@ class UserDao:
                 return None
 
     @staticmethod
-    def update(user: User) -> User:
+    @valida_autenticacao
+    def update(user: User, *args, **kargs) -> User:
         """
         Update a user in the database
         Args:
@@ -73,7 +78,8 @@ class UserDao:
                 return user
     
     @staticmethod
-    def delete(user: User) -> User:
+    @valida_autenticacao
+    def delete(user: User, *args, **kargs) -> User:
         """
         Delete a user in the database
         Args:
