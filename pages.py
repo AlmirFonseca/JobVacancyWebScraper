@@ -129,7 +129,7 @@ class SignUpPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        
+
         # Create a label and button
         label = tk.Label(self, text="Sign Up Page")
         label.pack(pady=10, padx=10)
@@ -184,12 +184,12 @@ class SignUpPage(tk.Frame):
 
         # Sign up button
         button = tk.Button(self, text="Cadastrar",
-                            command=lambda: self.sign_up(name_entry.get(), 
-                                                         surname_entry.get(), 
-                                                         username_entry.get(), 
-                                                         email_entry.get(), 
-                                                         password_entry.get(), 
-                                                         confirm_password_entry.get()))
+                            command=self.sign_up(name_entry.get(), 
+                                                 surname_entry.get(), 
+                                                 username_entry.get(), 
+                                                 email_entry.get(), 
+                                                 password_entry.get(), 
+                                                 confirm_password_entry.get()))
         
         button.pack()
 
@@ -197,6 +197,46 @@ class SignUpPage(tk.Frame):
         
         # TODO: add the sign up logic
         pass
+
+class CompentenciesPage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create a label and button
+        label = tk.Label(self, text="Seleção de Competências")
+        label.pack(pady=10, padx=10)
+
+        # Create a descritption
+        description = tk.Label(self, text="Selecione as linguagens de programação que você domina:")
+        description.pack()
+
+        # List fo compentencies
+        compentencies_list = ["Python", "C", "C++", "C#", "JavaScript", "Java", "HTML", "CSS",
+                              "PHP", "SQL", "Ruby", "Julia", "SPARQL", "Swift", "TypeScript", "R"]
+        
+        # Dict to store the selected compentencies
+        self.selected_compentencies = {}
+
+        # Frame to hold the checkboxes 
+        checkboxes = tk.Frame(self)
+        checkboxes.pack()
+
+        # Create a checkbox for each compentency  
+        for compentency in compentencies_list:
+            self.selected_compentencies[compentency] = tk.BooleanVar()
+            tk.Checkbutton(checkboxes, text=compentency, variable=self.selected_compentencies[compentency]).pack()
+
+        # Confirm button
+        button = tk.Button(self, text="Confirmar",
+                            command=self.submit_selection())
+        button.pack()
+
+    def submit_selection(self):
+
+        selected_competencies = [compentency for compentency, value in self.selected_compentencies.items() if value.get()]
+        print(selected_competencies)
+
 
 class UserPage(tk.Frame):
     pass
