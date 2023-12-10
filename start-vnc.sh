@@ -15,7 +15,6 @@ sleep 5
 fluxbox &
 
 # Inicie o servidor noVNC
-# Substitua /path/to/novnc/utils/launch.sh pelo caminho correto onde o noVNC foi instalado
 /opt/novnc/utils/launch.sh --listen 6080 --vnc localhost:5900 &
 
 # Execute a aplicação Tkinter
