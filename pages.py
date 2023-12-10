@@ -289,10 +289,59 @@ class SeniorityLevelPage(tk.Frame):
 
         # TODO: add the validation for no selected seniority level
 
-        # Go to the main page
+        # Go to the home page
+        self.controller.show_frame(HomePage)
 
+class HomePage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        # Create a header with buttons
+        header = tk.Frame(self)
+        header.pack()
 
-class UserPage(tk.Frame):
-    pass
+        # Button to go to the user page
+        button = tk.Button(header, text="Perfil",
+                            command=lambda: controller.show_frame(UserPage))
+        button.pack(side="left")
+
+        # Button to go to the compentencies page
+        button = tk.Button(header, text="Competências",
+                            command=lambda: controller.show_frame(CompentenciesPage))
+        button.pack(side="left")
+
+        # Button to go to the seniority level page
+        button = tk.Button(header, text="Nível de Senioridade",
+                            command=lambda: controller.show_frame(SeniorityLevelPage))
+        button.pack(side="left")
+
+        # Create a label and button
+        label = tk.Label(self, text="Home Page")
+        label.pack(pady=10, padx=10)
+
+        # Add an introduction text
+        introduction = tk.Label(self, text="Bem vindo ao nosso projeto...")
+        introduction.pack()
+    
+        # Button to add a curriculum
+        button = tk.Button(self, text="Adicionar currículo",
+                            # command=lambda: controller.show_frame(AddCurriculumPage))
+                            command=lambda: print("Adicionar currículo"))
+        button.pack()
+
+        # Button to see the list of jobs
+        button = tk.Button(self, text="Ver vagas",
+                            # command=lambda: controller.show_frame(JobListPage))
+                            command=lambda: print("Ver vagas"))
+        button.pack()
+
+# class UserPage(tk.Frame):
+#     pass
+
+# class AddCurriculumPage(tk.Frame):
+#     pass
+
+# class JobListPage(tk.Frame):
+#     pass
 
 # TODO: add placeholders on the entry fields (ex: email)
