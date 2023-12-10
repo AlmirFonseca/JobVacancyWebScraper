@@ -330,8 +330,7 @@ class HomePage(tk.Frame):
 
         # Button to see the list of jobs
         button = tk.Button(self, text="Ver vagas",
-                            # command=lambda: controller.show_frame(JobListPage))
-                            command=lambda: print("Ver vagas"))
+                            command=lambda: controller.show_frame(JobListPage))
         button.pack()
 
 class UserPage(tk.Frame):
@@ -479,11 +478,44 @@ class AddCurriculumPage(tk.Frame):
 
         # Add curriculum button
         button = tk.Button(self, text="Adicionar",
-                            command=lambda: print("Adicionar currículo"))
+                            command=lambda: self.add_curriculum(curriculum_link_entry.get()))
         
         button.pack()
 
-# class JobListPage(tk.Frame):
-#     pass
+    def add_curriculum(self, curriculum_link):
+
+        print(curriculum_link)
+
+        # TODO: add the logic to add the curriculum, and show a message box with the result        
+
+class JobListPage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        # Create a header with buttons
+        header = tk.Frame(self)
+        header.pack()
+
+        # Button to go to back to the home page
+        button = tk.Button(header, text="Home",
+                            command=lambda: controller.show_frame(HomePage))
+        button.pack(side="left")
+
+        # Button to go to the compentencies page
+        button = tk.Button(header, text="Competências",
+                            command=lambda: controller.show_frame(CompentenciesPage))
+        button.pack(side="left")
+
+        # Button to go to the seniority level page
+        button = tk.Button(header, text="Nível de Senioridade",
+                            command=lambda: controller.show_frame(SeniorityLevelPage))
+        button.pack(side="left")
+
+        # Create a label and button
+        label = tk.Label(self, text="Lista de vagas")
+        label.pack(pady=10, padx=10)
+
+        # TODO: add the logic to retrieve the jobs from the database (and show them on the screen)
 
 # TODO: add placeholders on the entry fields (ex: email)
