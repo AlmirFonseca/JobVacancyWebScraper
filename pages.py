@@ -47,7 +47,7 @@ class LoginPage(tk.Frame):
 
         # Forgot password
         forgot_password = tk.Label(self, text="Esqueceu sua senha?", fg="blue")
-        forgot_password.bind("<Button-1>", lambda e: controller.show_frame(ForgotPasswordPage))
+        forgot_password.bind("<Button-1>", lambda: controller.show_frame(ForgotPasswordPage))
         forgot_password.pack()
 
         # Sign in button
@@ -71,7 +71,7 @@ class ForgotPasswordPage(tk.Frame):
         self.email_entry = tk.Entry(self.email_frame)  # TODO: add email validation callback
         self.email_entry.pack()
         email_submit = tk.Button(self.email_frame, text="Submit",
-                                 command=self.send_recovery_code)
+                                 command=lambda: self.send_recovery_code)
         email_submit.pack()
         self.email_frame.pack()
 
@@ -81,10 +81,10 @@ class ForgotPasswordPage(tk.Frame):
         self.code_entry = tk.Entry(self.code_frame) # Add a code structure validation callback
         self.code_entry.pack()
         code_submit = tk.Button(self.code_frame, text="Submit",
-                                command=self.verify_code)
+                                command=lambda: self.verify_code)
         code_submit.pack()
         resend_code = tk.Button(self.code_frame, text="Resend Code",
-                                command=self.send_recovery_code)
+                                command=lambda: self.send_recovery_code)
         resend_code.pack()
 
         # Frame for Password Reset
@@ -96,7 +96,7 @@ class ForgotPasswordPage(tk.Frame):
         self.confirm_password_entry = tk.Entry(self.reset_frame, show="*")
         self.confirm_password_entry.pack() # TODO: add a password match validation callback
         reset_submit = tk.Button(self.reset_frame, text="Reset Password",
-                                 command=self.reset_password)
+                                 command=lambda: self.reset_password)
         reset_submit.pack()
 
     def send_recovery_code(self):
@@ -129,6 +129,7 @@ class SignUpPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        self.controller = controller
 
         # Create a label and button
         label = tk.Label(self, text="Sign Up Page")
@@ -184,7 +185,7 @@ class SignUpPage(tk.Frame):
 
         # Sign up button
         button = tk.Button(self, text="Cadastrar",
-                            command=self.sign_up(name_entry.get(), 
+                            command=lambda: self.sign_up(name_entry.get(), 
                                                  surname_entry.get(), 
                                                  username_entry.get(), 
                                                  email_entry.get(), 
@@ -196,12 +197,16 @@ class SignUpPage(tk.Frame):
     def sign_up(self, name, surname, username, email, password, confirm_password):
         
         # TODO: add the sign up logic
-        pass
+        
+        
+        # GO to the compentencies page
+        self.controller.show_frame(CompentenciesPage)
 
 class CompentenciesPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        self.controller = controller
 
         # Create a label and button
         label = tk.Label(self, text="Seleção de Competências")
@@ -229,13 +234,62 @@ class CompentenciesPage(tk.Frame):
 
         # Confirm button
         button = tk.Button(self, text="Confirmar",
-                            command=self.submit_selection())
+                            command=lambda: self.submit_selection())
         button.pack()
+
+        # Button to go back to the login page
+        button = tk.Button(self, text="Voltar",
+                            command=lambda: controller.show_frame(LoginPage))
 
     def submit_selection(self):
 
-        selected_competencies = [compentency for compentency, value in self.selected_compentencies.items() if value.get()]
+        selected_competencies =[compentency for compentency, value in self.selected_compentencies.items() if value.get()]
         print(selected_competencies)
+
+        # TODO: add the validation for no selected compentencies
+
+        # Go to the seniority level page
+        self.controller.show_frame(SeniorityLevelPage)
+
+class SeniorityLevelPage(tk.Frame):
+    
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+        # Create a label and button
+        label = tk.Label(self, text="Nível de Senioridade")
+        label.pack(pady=10, padx=10)
+
+        # Create a descritption
+        description = tk.Label(self, text="Selecione o seu nível de senioridade:")
+        description.pack()
+
+        # List of seniority levels
+        seniority_levels = ["Sem experiência", "Junior", "Pleno", "Sênior"]
+        # Dict to store the selected seniority level
+        self.selected_seniority_level = tk.IntVar()
+
+        # Radio buttons to select the seniority level
+        for seniority_level in seniority_levels:
+            tk.Radiobutton(self, text=seniority_level, variable=self.selected_seniority_level, value=seniority_levels.index(seniority_level)).pack()
+
+        # Confirm button
+        button = tk.Button(self, text="Confirmar",
+                            command=lambda: self.submit_selection())
+        
+        button.pack()
+
+        # Button to go back to the login page
+        button = tk.Button(self, text="Voltar",
+                            command=lambda: controller.show_frame(LoginPage))
+        
+    def submit_selection(self):
+        selected_seniority_level = self.selected_seniority_level.get()
+
+        # TODO: add the validation for no selected seniority level
+
+        # Go to the main page
 
 
 class UserPage(tk.Frame):
