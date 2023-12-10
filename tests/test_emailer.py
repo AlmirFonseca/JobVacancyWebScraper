@@ -1,5 +1,7 @@
 import unittest
 from src.emailer.emailer import Emailer
+from email.mime.text import MIMEText
+from unittest.mock import patch
 
 
 class TestEmailer(unittest.TestCase):
@@ -22,6 +24,31 @@ class TestEmailer(unittest.TestCase):
     def test_is_valid_email_with_underline(self):
         email = "teste_t@gmail.com"
         self.assertTrue(Emailer.is_valid_email(email))
+
+    @patch('smtplib.SMTP')
+    def test_send_email(self, mock_smtp):
+        emailer = Emailer()
+
+        emailer.send_email('job.web.scraper@gmx.com', 'Subject', 'Message')
+
+        # check if SMTP was called with the correct server and port
+        mock_smtp.assert_called_with('mail.gmx.com', 587)
+
+        # get the mock SMTP instance
+        instance = mock_smtp.return_value
+
+        # check if the login, sendmail, and quit methods were called with the correct arguments
+        instance.__enter__().login.assert_called_with(user='job.web.scraper@gmx.com', password=emailer.password)
+        instance.__exit__.assert_called_once()
+
+        # get the arguments that send_message was called with
+        send_message_args = instance.__enter__().send_message.call_args[0]
+
+        # check the content of the MIMEText object
+        self.assertEqual(send_message_args[0].get_payload(), 'Message')
+        self.assertEqual(send_message_args[0]['Subject'], 'Subject')
+        self.assertEqual(send_message_args[0]['From'], 'job.web.scraper@gmx.com')
+        self.assertEqual(send_message_args[0]['To'], 'job.web.scraper@gmx.com')
 
 
 if __name__ == '__main__':
