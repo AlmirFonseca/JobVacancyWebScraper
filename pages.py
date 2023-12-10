@@ -335,8 +335,114 @@ class HomePage(tk.Frame):
                             command=lambda: print("Ver vagas"))
         button.pack()
 
-# class UserPage(tk.Frame):
-#     pass
+class UserPage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        
+        # Create a header with buttons
+        header = tk.Frame(self)
+        header.pack()
+
+        # Button to go to back to the home page
+        button = tk.Button(header, text="Home",
+                            command=lambda: controller.show_frame(HomePage))
+        button.pack(side="left")
+
+        # Button to go to the compentencies page
+        button = tk.Button(header, text="Competências",
+                            command=lambda: controller.show_frame(CompentenciesPage))
+        button.pack(side="left")
+
+        # Button to go to the seniority level page
+        button = tk.Button(header, text="Nível de Senioridade",
+                            command=lambda: controller.show_frame(SeniorityLevelPage))
+        button.pack(side="left")
+
+        # Create a label and button
+        label = tk.Label(self, text="Perfil")
+        label.pack(pady=10, padx=10)
+
+        # Show the username, name and email
+        username = tk.Label(self, text="Nome de usuário")
+        username.pack()
+        name = tk.Label(self, text="Nome completo")
+        name.pack()
+        email = tk.Label(self, text="Email")
+        email.pack()
+
+        # TODO: add the user information
+
+        # Frama to edit the user information (name, surname, username, email, password, confirm password)
+        edit_user_frame = tk.Frame(self)
+        edit_user_frame.pack()
+
+        # Name label
+        name_label = tk.Label(edit_user_frame, text="Nome")
+        name_label.pack()
+
+        # Name entry
+        name_entry = tk.Entry(edit_user_frame)
+        name_entry.pack()
+
+        # Surname label
+        surname_label = tk.Label(edit_user_frame, text="Sobrenome")
+        surname_label.pack()
+
+        # Surname entry
+        surname_entry = tk.Entry(edit_user_frame)
+        surname_entry.pack()
+
+        # Username label
+        username_label = tk.Label(edit_user_frame, text="Nome de usuário")
+        username_label.pack()
+
+        # Username entry
+        username_entry = tk.Entry(edit_user_frame)
+        username_entry.pack()
+
+        # Email label
+        email_label = tk.Label(edit_user_frame, text="Email")
+        email_label.pack()
+
+        # Email entry
+        email_entry = tk.Entry(edit_user_frame)
+        email_entry.pack()
+
+        # Password label
+        password_label = tk.Label(edit_user_frame, text="Senha")
+        password_label.pack()
+
+        # Password entry
+        password_entry = tk.Entry(edit_user_frame, show="*")
+        password_entry.pack()
+
+        # Confirm password label
+        confirm_password_label = tk.Label(edit_user_frame, text="Confirmar senha")
+        confirm_password_label.pack()
+
+        # Confirm password entry
+        confirm_password_entry = tk.Entry(edit_user_frame, show="*")
+        confirm_password_entry.pack()
+
+        # Confirm button
+        button = tk.Button(edit_user_frame, text="Confirmar",
+                            command=lambda: self.edit_user(name_entry.get(), 
+                                                 surname_entry.get(), 
+                                                 username_entry.get(), 
+                                                 email_entry.get(), 
+                                                 password_entry.get(), 
+                                                 confirm_password_entry.get()))
+        
+        button.pack()
+        
+    def edit_user(self, name, surname, username, email, password, confirm_password):
+
+        pass
+
+        # TODO: add the logic to edit the user information, and show a message box with the result
+
+
 
 # class AddCurriculumPage(tk.Frame):
 #     pass
