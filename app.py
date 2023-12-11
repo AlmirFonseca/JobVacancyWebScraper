@@ -39,6 +39,8 @@ class AppController(tk.Tk):
             cont(str): Frame type
         """
         frame = self.page_factory.create_page(cont)
+        if cont == UserPage:
+            frame.update_info()
         frame.tkraise()
 
     def apply_dark_theme(self):

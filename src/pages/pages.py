@@ -2,9 +2,20 @@ import tkinter as tk
 import secrets
 import sys
 sys.path.append('./src/emailer')
+sys.path.append('./src/models')
+sys.path.append('./src/daos')
 from emailer import Emailer
 from tkinter import messagebox, ttk
 from time import sleep
+from uuid import uuid4
+
+from user import User
+from file_link import FileLink
+from user_dao import create, get_by_email, update
+from file_link_dao import create_file_link
+
+
+logged_user = None
 
 
 class StartPage(ttk.Frame):
@@ -32,6 +43,7 @@ class StartPage(ttk.Frame):
 class LoginPage(ttk.Frame):
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
+        self.controller = controller
 
         # Create a label in left side
         label = ttk.Label(self, text="Iniciar sessão")
@@ -65,7 +77,7 @@ class LoginPage(ttk.Frame):
 
         # Sign in button
         button = ttk.Button(self, text="Entrar",
-                            command=lambda: print("Email: {}\nPassword: {}".format(email_entry.get(), password_entry.get())))
+                            command=lambda: self.login(email_entry.get(), password_entry.get()))
         # Change font
         button.pack(pady=10)
 
@@ -73,10 +85,28 @@ class LoginPage(ttk.Frame):
 
         # Sign up button
         button = ttk.Button(self, text="Não tem conta? Cadastre-se",
-                            command=lambda _: controller.show_frame("SignUpPage"))
+                            command=lambda: controller.show_frame("SignUpPage"))
 
         button.pack(padx=100, pady=100, ipadx=20)
+    
+    def login(self, email, password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+    
+        user = get_by_email(email)
+        if user is None:
+            messagebox.showerror("Erro", "Email não cadastrado")
+            return
 
+        if not user.check_password(password):
+            messagebox.showerror("Erro", "Senha incorreta")
+            return
+        
+        global logged_user
+        logged_user = user
+        self.controller.show_frame(HomePage)
+    
 
 class ForgotPasswordPage(ttk.Frame):
     def __init__(self, parent, controller):
@@ -255,8 +285,19 @@ class SignUpPage(ttk.Frame):
         button.grid(row=9, column=0, columnspan=3, sticky="n", pady=50, padx=10)
 
     def sign_up(self, name, surname, username, email, password, confirm_password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+
+        if password != confirm_password:
+            messagebox.showerror("Erro", "As senhas não são iguais")
+            return
         
-        # TODO: add the sign up logic
+        token = str(uuid4())
+        global logged_user
+        logged_user = User(name, email, password, token, surname)
+        logged_user = create(logged_user)
+        
         # GO to the compentencies page
         self.controller.show_frame("CompentenciesPage")
 
@@ -458,12 +499,10 @@ class UserPage(ttk.Frame):
         # Show the username, name and email
         username = ttk.Label(user_info_frame, text="Nome de usuário: ")
         username.pack(pady=5)
-        name = ttk.Label(user_info_frame, text="Nome completo: ")
-        name.pack(pady=5)
-        email = ttk.Label(user_info_frame, text="Email: ")
-        email.pack(pady=5)
-
-        # TODO: add the user information
+        self.name = ttk.Label(user_info_frame, text="Nome completo: ")
+        self.name.pack(pady=5)
+        self.email = ttk.Label(user_info_frame, text="Email: ")
+        self.email.pack(pady=5)
 
         # Frame to edit the user information (name, surname, username, email, password, confirm password)
         edit_user_frame = ttk.Frame(self)
@@ -533,12 +572,30 @@ class UserPage(ttk.Frame):
                                                  confirm_password_entry.get()))
         
         button.pack(pady=100, padx=50)
+    
+    def update_info(self):
+        self.name.config(text=f"Nome completo: {logged_user.name} {logged_user.last_name}")
+        self.email.config(text=f"Email: {logged_user.email}")
         
     def edit_user(self, name, surname, username, email, password, confirm_password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+        
+        if password != confirm_password:
+            messagebox.showerror("Erro", "As senhas não são iguais")
+            return
+        
+        global logged_user
+        logged_user.name = name
+        logged_user.last_name = surname
+        logged_user.username = username
+        logged_user.email = email
+        logged_user.password = User.generate_key(password)
+        
+        logged_user = update(logged_user)
 
-        pass
-
-        # TODO: add the logic to edit the user information, and show a message box with the result
+        messagebox.showinfo("Sucesso", "Usuário editado com sucesso")
 
 
 class AddCurriculumPage(ttk.Frame):
@@ -587,10 +644,10 @@ class AddCurriculumPage(ttk.Frame):
         button.pack(pady=60, padx=10)
 
     def add_curriculum(self, curriculum_link):
-
-        print(curriculum_link)
-
-        # TODO: add the logic to add the curriculum, and show a message box with the result        
+        file_link = FileLink(curriculum_link, logged_user._id)
+        file_link = create_file_link(file_link, token=logged_user.token)
+        
+        messagebox.showinfo("Sucesso", "Currículo adicionado com sucesso")
 
 
 class JobListPage(ttk.Frame):
