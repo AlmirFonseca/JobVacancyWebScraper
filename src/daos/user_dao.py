@@ -27,7 +27,6 @@ def create(user: User, *args, **kargs) -> User:
     user._id = id
     return user
 
-@valida_autenticacao
 def get_by_email(email: str, *args, **kargs) -> User:
     """
     Get a user by email
