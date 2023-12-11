@@ -24,11 +24,11 @@ def insert(table: str, data: dict, return_columns: list = None) -> list:
             if return_columns:
                 sql += f' RETURNING {", ".join(return_columns)}'
             cursor.execute(sql, tuple(data.values()))
-            fetch = cursor.fetchone()
-            conn.commit()
+            fetch = []
             if return_columns:
-                return fetch
-            return []
+                fetch = cursor.fetchone()
+            conn.commit()
+            return fetch
 
 def update(table: str, data: dict, where: dict) -> bool:
     """
