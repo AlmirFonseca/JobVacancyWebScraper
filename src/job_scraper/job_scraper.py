@@ -80,7 +80,18 @@ remote_options_dict:dict = {
     "Trabalho não remoto": False
 }
 
-class JobScraper():
+class JobScraperException(Exception):
+    """Exception raised for errors in the job scraping process.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message="There was an error in the Job Scraper process"):
+        self.message = message
+        super().__init__(self.message)
+
+class JobScraper:
     """Class to facilitate job scraping from various online platforms.
 
     Attributes:
@@ -102,12 +113,12 @@ class JobScraper():
 
         self.job: Optional[pd.DataFrame] = None
 
-        self.data_types: List[str] = ["site_names", "job_types", "countries", "keywords", "remote_options"]
+        self.data_types: List[str] = ["site_names", "job_types", "locations", "keywords", "remote_options"]
 
         self.available_options: Dict[str, List[str]] = {
             "site_names": list(website_dict.keys()),
             "job_types": list(job_type_dict.keys()),
-            "countries": list(country_dict.keys()),
+            "locations": list(country_dict.keys()),
             "keywords": list(keywords_dict.keys()),
             "remote_options": list(remote_options_dict.keys())
         }
@@ -115,7 +126,7 @@ class JobScraper():
         self.selected_options: Dict[str, List[str]] = {
             "site_names": [],
             "job_types": [],
-            "countries": [],
+            "locations": [],
             "keywords": [],
             "remote_options": []
         }
@@ -134,6 +145,10 @@ class JobScraper():
         transposed_values = []
         
         for key in keys:
+
+            if key not in dict_to_transpose.keys():
+                raise JobScraperException(f"Invalid key '{key}' provided")
+
             value = dict_to_transpose.get(key, None)
             if value:
                 transposed_values.append(dict_to_transpose[key])
@@ -150,7 +165,6 @@ class JobScraper():
             list: A list of available options for the specified data type, or None if the data type is invalid.
         """
 
-            
         if data_type not in self.data_types:
             return None
         
@@ -169,7 +183,7 @@ class JobScraper():
         
         # Check if the data type is valid and if the list of values is not empty
         if data_type not in self.data_types or not values:
-            return False
+            raise JobScraperException("Invalid data type or empty list of values")
         
         available_options = self.get_options(data_type)
 
@@ -199,7 +213,7 @@ class JobScraper():
             
         # Check if the data type is valid and if the list of values is not empty
         if data_type not in self.data_types or not values:
-            return False
+            raise JobScraperException("Invalid data type or empty list of values")
         
         available_options = self.get_options(data_type)
 
@@ -216,7 +230,7 @@ class JobScraper():
 
         return True
 
-    def get_jobs(self, num_jobs: int = 20, offset: int = 0) -> Optional[pd.DataFrame]:
+    def get_jobs(self, num_jobs: int = 20, offset: int = 0, country: str = "brazil", verbose: bool = False) -> Optional[pd.DataFrame]:
         """Scrapes jobs based on selected options and returns the results.
 
         Args:
@@ -230,23 +244,103 @@ class JobScraper():
         try:
             # Execute the job scraping function with the selected options
             # Note: some options accept only one value, so we need to select the first element of the list
-            jobs = scrape_jobs(
-                site_name=self.transpose_from_dict(website_dict, self.selected_options["site_names"]),
-                job_type=self.transpose_from_dict(job_type_dict, self.selected_options["job_types"])[0],
-                search_term=self.transpose_from_dict(keywords_dict, self.selected_options["keywords"])[0],
-                location=self.transpose_from_dict(country_dict, self.selected_options["countries"])[0],
-                results_wanted=10, # Be aware of the number of results, the higher the number, the higher the chance of being blocked (rotating proxy should work)
-                country_indeed="Brazil",
-                is_remote=self.transpose_from_dict(remote_options_dict, self.selected_options["remote_options"])[0],
-                offset=25, # Search for more results if you don't find enough jobs
-            )
+            search_data = {
+                "site_name": self.transpose_from_dict(website_dict, self.selected_options["site_names"]),
+                "job_type": self.transpose_from_dict(job_type_dict, self.selected_options["job_types"])[0],
+                "search_term": " ".join(self.transpose_from_dict(keywords_dict, self.selected_options["keywords"])),
+                "location": self.transpose_from_dict(country_dict, self.selected_options["locations"])[0],
+                "results_wanted": num_jobs, # Be aware of the number of results, the higher the number, the higher the chance of being blocked (rotating proxy should work)
+                # "country_indeed": 
+                "is_remote": self.transpose_from_dict(remote_options_dict, self.selected_options["remote_options"])[0],
+                "offset": offset,  # Search for more results if you don't find enough jobs
+                "country_indeed": country
+            }
+
+            if verbose:
+                if search_data["is_remote"]:
+                    print("Buscando por vagas remotas ")
+                else:
+                    print(f"Buscando por ")
+
+                print(f"{search_data['search_term']}, {search_data['job_type']} em {search_data['location']} no site(s) {search_data['site_name']}")
+
+            scraper_proxy = JobScraperProxy(self)
+            jobs = scraper_proxy.scrape_with_proxy(verbose, **search_data)
+
         except Exception as e:
-            print(e)
             self.jobs = None
-        
+            raise JobScraperException(f"Error while scraping jobs: {e}")
         else:
             self.jobs = jobs
         
         finally:
             return self.jobs
         
+
+class JobScraperProxy:
+
+    def __init__(self, job_scraper: JobScraper):
+        """ Initializes the JobScraperProxy with default values.
+
+        Args:
+            job_scraper (JobScraper): The JobScraper instance to be used for scraping jobs.
+
+        Attributes:
+            job_scraper (JobScraper): The JobScraper instance to be used for scraping jobs.
+            proxies (list): List of proxies to be used for scraping jobs.        
+        """
+
+        self.job_scraper = job_scraper
+        self.proxies = [
+            None, # At first, try without proxy
+            "http://jobspy:5a4vpWtj4EeJ2hoYzk@us.smartproxy.com:10001",
+            "https://jobspy:5a4vpWtj4EeJ2hoYzk@us.smartproxy.com:10001",
+            "socks5://jobspy:5a4vpWtj4EeJ2hoYzk@us.smartproxy.com:10001"
+        ]
+
+    def scrape_with_proxy(self, verbose=False, **kwargs):
+        """Scrapes jobs based on selected options and returns the results.
+
+        Args:
+            kwargs: Keyword arguments to be passed to the JobScraper.get_jobs() function.
+        
+        Returns:
+            DataFrame: A DataFrame containing the scraped job data, or None in case of an error.
+        """
+
+        for proxy in self.proxies:
+            try:
+                if verbose:
+                    print(f"Trying to scrape jobs with proxy {proxy}")
+
+                # Adjust kwargs to include the proxy
+                kwargs["proxy"] = proxy
+
+                # Scrape jobs directly from the JobScraper instance, but with a proxy
+                return scrape_jobs(**kwargs)
+            
+            except Exception as e:
+                print(f"Error while scraping jobs with proxy {proxy}: {e}")
+                continue
+        
+        raise JobScraperException("Error while scraping jobs with proxy. All proxies failed tried and failed")
+
+        
+
+if __name__ == "__main__":
+
+    # formatting for pandas
+    pd.set_option("display.max_columns", None)
+    pd.set_option("display.max_rows", None)
+    pd.set_option("display.width", None)
+    pd.set_option("display.max_colwidth", 50)  # set to 0 to see full job url / desc
+
+    scraper = JobScraper()
+    scraper.set_options("site_names", ["LinkedIn", "Indeed"])
+    scraper.set_options("job_types", ["Tempo integral"])
+    scraper.set_options("locations", ["Rio de Janeiro"])
+    scraper.set_options("keywords", ["Python", "Sem experiência"])
+    scraper.set_options("remote_options", ["Trabalho remoto"])
+    scraper.get_jobs(verbose=True)
+    print(scraper.jobs)
+
