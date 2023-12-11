@@ -5,8 +5,6 @@ Xvfb :99 -screen 0 1024x768x24 &
 # Aguarde um pouco para o Xvfb iniciar
 sleep 5
 
-
-
 # Inicie o servidor VNC
 x11vnc -display :99 -nopw -listen localhost -xkb -forever &
 

@@ -102,6 +102,7 @@ class ForgotPasswordPage(ttk.Frame):
         # Frame for Code Verification
         self.code_frame = ttk.Frame(self)
         ttk.Label(self.code_frame, text="Enter the code you received").pack() 
+        
         self.code_entry = ttk.Entry(self.code_frame) # Add a code structure validation callback
         self.code_entry.pack()
         code_submit = ttk.Button(self.code_frame, text="Submit",
@@ -139,6 +140,8 @@ class ForgotPasswordPage(ttk.Frame):
             # Hide the email frame and show the code frame
             self.email_frame.pack_forget()
             self.code_frame.pack()
+            string_recovery_code = f"Code: {self.reset_code:06d} (não estamos enviando emails para não bloquear o endereço de email)"
+            ttk.Label(self.code_frame, text=string_recovery_code).pack()
         else:
             messagebox.showinfo("Error", "Invalid e-mail ")
         
