@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3
+FROM --platform=linux/amd64 python:3.11
 
 # Instalar dependências
 RUN apt-get update && apt-get install -y \
@@ -20,6 +20,9 @@ COPY start-vnc.sh /start-vnc.sh
 
 # Dê permissão de execução aos scripts
 RUN chmod +x /start-vnc.sh
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
 # Expõe as portas corretas
 EXPOSE 5900 6080
