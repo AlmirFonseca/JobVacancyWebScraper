@@ -105,7 +105,7 @@ class LoginPage(ttk.Frame):
         
         global logged_user
         logged_user = user
-        self.controller.show_frame(HomePage)
+        self.controller.show_frame("HomePage")
     
 
 class ForgotPasswordPage(ttk.Frame):
@@ -499,9 +499,9 @@ class UserPage(ttk.Frame):
         # Show the username, name and email
         username = ttk.Label(user_info_frame, text="Nome de usuário: ")
         username.pack(pady=5)
-        self.name = ttk.Label(user_info_frame, text="Nome completo: ")
+        self.name = ttk.Label(user_info_frame, text=f"Nome completo: {logged_user.name} {logged_user.last_name}")
         self.name.pack(pady=5)
-        self.email = ttk.Label(user_info_frame, text="Email: ")
+        self.email = ttk.Label(user_info_frame, text=f"Email: {logged_user.email}")
         self.email.pack(pady=5)
 
         # Frame to edit the user information (name, surname, username, email, password, confirm password)
@@ -572,10 +572,6 @@ class UserPage(ttk.Frame):
                                                  confirm_password_entry.get()))
         
         button.pack(pady=100, padx=50)
-    
-    def update_info(self):
-        self.name.config(text=f"Nome completo: {logged_user.name} {logged_user.last_name}")
-        self.email.config(text=f"Email: {logged_user.email}")
         
     def edit_user(self, name, surname, username, email, password, confirm_password):
         if not Emailer.is_valid_email(email):
