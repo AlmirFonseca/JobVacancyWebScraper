@@ -495,10 +495,10 @@ class UserPage(ttk.Frame):
         # Show the username, name and email
         username = ttk.Label(user_info_frame, text="Nome de usuário: ")
         username.pack(pady=5)
-        name = ttk.Label(user_info_frame, text="Nome completo: ")
-        name.pack(pady=5)
-        email = ttk.Label(user_info_frame, text="Email: ")
-        email.pack(pady=5)
+        self.name = ttk.Label(user_info_frame, text="Nome completo: ")
+        self.name.pack(pady=5)
+        self.email = ttk.Label(user_info_frame, text="Email: ")
+        self.email.pack(pady=5)
 
         # TODO: add the user information
 
@@ -570,6 +570,10 @@ class UserPage(ttk.Frame):
                                                  confirm_password_entry.get()))
         
         button.pack(pady=100, padx=50)
+    
+    def update_info(self):
+        self.name.config(text=f"Nome completo: {logged_user.name} {logged_user.last_name}")
+        self.email.config(text=f"Email: {logged_user.email}")
         
     def edit_user(self, name, surname, username, email, password, confirm_password):
         if not Emailer.is_valid_email(email):
