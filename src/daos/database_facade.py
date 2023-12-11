@@ -100,5 +100,8 @@ def select(table: str, columns: list = None, where: dict = None, order_by: str =
                 sql += f' {order_by_clause}'
             if limit_clause:
                 sql += f' {limit_clause}'
-            cursor.execute(sql, tuple(where.values()))
+            if where:
+                cursor.execute(sql, tuple(where.values()))
+            else:
+                cursor.execute(sql)
             return cursor.fetchall()
