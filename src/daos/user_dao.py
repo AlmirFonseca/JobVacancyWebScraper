@@ -40,7 +40,7 @@ def get_by_email(email: str, *args, **kargs) -> User:
     columns = ('user_name', 'user_email', 'user_password', 'user_token', 'user_last_name', 'user_level', 'user_id')
     where = {'user_email': email}
     fetch = select(table, columns, where)
-    return User(*fetch[0]) if fetch else None
+    return User(*fetch[0], is_password_hashed=True) if fetch else None
 
 @valida_autenticacao
 def get_by_id(id: int, *args, **kargs) -> User:

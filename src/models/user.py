@@ -44,7 +44,7 @@ class User:
         Returns:
             True if the provided password is correct, False otherwise
         """
-        return self.password == User.gera_chave(password)
+        return self.password == User.generate_key(password)
     
     @staticmethod
     def generate_key(password: str, secret: bytes = SECRET) -> str:
