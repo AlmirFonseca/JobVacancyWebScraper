@@ -41,7 +41,7 @@ class TestJobScraper(unittest.TestCase):
 
         self.scraper.get_jobs()
 
-        self.assertIsNotNone(self.scraper.jobs)
+        self.assertIsNotNone(self.scraper.job)
 
 if __name__ == '__main__':
     unittest.main()
