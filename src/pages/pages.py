@@ -401,21 +401,21 @@ class SeniorityLevelPage(ttk.Frame):
         self.grid_columnconfigure(2, weight=2)
 
         # List of seniority levels
-        seniority_levels = ["Sem experiência", "Junior", "Pleno", "Sênior"]
+        self.seniority_levels = ["Sem experiência", "Junior", "Pleno", "Sênior"]
         # Dict to store the selected seniority level
         self.selected_seniority_level = tk.IntVar()
 
         # Radio buttons to select the seniority level
-        for i, seniority_level in enumerate(seniority_levels):
+        for i, seniority_level in enumerate(self.seniority_levels):
             ttk.Radiobutton(self, text=seniority_level, variable=self.selected_seniority_level, value=i).grid(row=i+2, column=0, columnspan=3, pady=5, padx=25, sticky="n")
 
         # Confirm button
         button = ttk.Button(self, text="Confirmar", command=lambda: self.submit_selection())
-        button.grid(row=len(seniority_levels)+2, column=0, columnspan=3, pady=50, padx=10)
+        button.grid(row=len(self.seniority_levels)+2, column=0, columnspan=3, pady=50, padx=10)
 
         # Button to go back to the login page
         button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("LoginPage"))
-        button.grid(row=len(seniority_levels)+3,column=0, columnspan=3, pady=20, padx=10)
+        button.grid(row=len(self.seniority_levels)+3,column=0, columnspan=3, pady=20, padx=10)
         
     def submit_selection(self):
         selected_seniority_level = self.selected_seniority_level.get()
@@ -424,9 +424,16 @@ class SeniorityLevelPage(ttk.Frame):
         if selected_seniority_level == -1:
             messagebox.showerror("Erro", "Selecione um nível de senioridade")
             return
-        else:
-            # Go to the home page
-            self.controller.show_frame("HomePage")
+        
+        selected_seniority = self.seniority_levels[selected_seniority_level]
+        
+        global logged_user
+        if logged_user.level != selected_seniority:
+            logged_user.level = selected_seniority
+            logged_user = update(logged_user, token=logged_user.token)
+        
+        # Go to the home page
+        self.controller.show_frame("HomePage")
 
 
 class HomePage(ttk.Frame):
