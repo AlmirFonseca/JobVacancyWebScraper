@@ -108,7 +108,7 @@ class ForgotPasswordPage(ttk.Frame):
                                 command=lambda: self.verify_code())
         code_submit.pack()
         resend_code = ttk.Button(self.code_frame, text="Resend Code",
-                                command=lambda: self.send_recovery_code())
+                                command=lambda: self.resend_recovery_code())
         resend_code.pack()
 
         # Frame for Password Reset
@@ -145,10 +145,14 @@ class ForgotPasswordPage(ttk.Frame):
         # enable the email_submit button
         self.email_submit.config(state="normal")
 
+    def resend_recovery_code(self):
+        self.code_frame.pack_forget()
+        self.email_frame.pack()
+
     def verify_code(self):
         code = self.code_entry.get()
         # TODO: add code verification logic
-        if int(code) != self.reset_code:
+        if code != str(self.reset_code):
             messagebox.showinfo("Error", "Invalid code")
         else:
             # Hide the code frame and show the reset frame
@@ -161,6 +165,8 @@ class ForgotPasswordPage(ttk.Frame):
         if new_password == confirm_password:
             # TODO: add password reset logic
             messagebox.showinfo("Success", "Password reset successfully")
+            self.reset_frame.pack_forget()
+            self.email_frame.pack()
             self.controller.show_frame(LoginPage)
         else:
             messagebox.showerror("Error", "Passwords do not match")
