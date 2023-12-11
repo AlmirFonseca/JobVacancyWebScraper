@@ -1,4 +1,4 @@
-import database_facade as dbf
+from database_facade import *
 import sys
 sys.path.append('./src')
 
@@ -18,7 +18,7 @@ def create_user_skill(user_id: int, skill_id: int, *args, **kargs) -> bool:
         'user_id': user_id,
         'skill_id': skill_id,
     }
-    dbf.insert('rel_user_skill', data)
+    insert('rel_user_skill', data)
     return True
 
 @valida_autenticacao
@@ -30,7 +30,7 @@ def get_user_skills(*args, **kargs) -> list:
     """
     table = 'rel_user_skill'
     columns = ('user_id', 'skill_id')
-    return dbf.select(table, columns)
+    return select(table, columns)
 
 @valida_autenticacao
 def get_user_skills_by_user_id(user_id: int, *args, **kargs) -> list:
@@ -44,7 +44,7 @@ def get_user_skills_by_user_id(user_id: int, *args, **kargs) -> list:
     table = 'rel_user_skill'
     columns = ('user_id', 'skill_id')
     where = {'user_id': user_id}
-    return dbf.select(table, columns, where)
+    return select(table, columns, where)
 
 @valida_autenticacao
 def get_user_skills_by_skill_id(skill_id: int, *args, **kargs) -> list:
@@ -58,7 +58,7 @@ def get_user_skills_by_skill_id(skill_id: int, *args, **kargs) -> list:
     table = 'rel_user_skill'
     columns = ('user_id', 'skill_id')
     where = {'skill_id': skill_id}
-    return dbf.select(table, columns, where)
+    return select(table, columns, where)
 
 @valida_autenticacao
 def delete_user_skill(user_id: int, skill_id: int, *args, **kargs) -> bool:
@@ -73,4 +73,4 @@ def delete_user_skill(user_id: int, skill_id: int, *args, **kargs) -> bool:
         'user_id': user_id,
         'skill_id': skill_id,
     }
-    return dbf.delete(table, where)
+    return delete(table, where)

@@ -1,4 +1,4 @@
-import database_facade as dbf
+from database_facade import *
 import sys
 sys.path.append('./src')
 sys.path.append('./src/models')
@@ -18,7 +18,7 @@ def create_job_vacancy(job_vacancy: JobVacancy, *args, **kargs) -> JobVacancy:
         'job_email': job_vacancy.email,
         'job_link': job_vacancy.link,
     }
-    id = dbf.insert('job_vacancy', data, return_columns=('job_id',))[0]
+    id = insert('job_vacancy', data, return_columns=('job_id',))[0]
     job_vacancy._id = id
     return job_vacancy
 
@@ -31,7 +31,7 @@ def get_job_vacancies(*args, **kargs):
     """
     table = 'job_vacancy'
     columns = ('job_name', 'job_email', 'job_link', 'job_id')
-    fetch = dbf.select(table, columns)
+    fetch = select(table, columns)
     return [JobVacancy(*f) for f in fetch] if fetch else None
 
 @valida_autenticacao
@@ -46,5 +46,5 @@ def get_job_vacancy(id: int, *args, **kargs) -> JobVacancy:
     table = 'job_vacancy'
     columns = ('job_name', 'job_email', 'job_link', 'job_id')
     where = {'job_id': id}
-    fetch = dbf.select(table, columns, where)
+    fetch = select(table, columns, where)
     return JobVacancy(*fetch[0]) if fetch else None
