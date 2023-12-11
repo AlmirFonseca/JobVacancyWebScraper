@@ -89,3 +89,22 @@ class Emailer:
             server.starttls()
             server.login(user=self.address, password=self.password)
             server.send_message(message)
+    
+    def mock_send_email(self, to_email: str, subject: str, body: str) -> None:
+        """
+        Instead of sending emails it prints them to the console
+        Args:
+           to_email(str): Recipient email address. Must be a valid email address, else send_email raises an error.
+           subject(str): Email subject
+           body(str): Email body
+        """
+        if not self.is_valid_email(to_email):
+            raise ValueError(f'{to_email} is not a valid email address')
+
+        message = MIMEText(body)
+        message['Subject'] = subject
+        message['From'] = self.address
+        message['To'] = to_email
+
+        with smtplib.SMTP("localhost", 1025) as server:
+            server.send_message(message)
