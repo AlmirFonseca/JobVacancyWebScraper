@@ -91,7 +91,7 @@ class JobScraperException(Exception):
         self.message = message
         super().__init__(self.message)
 
-class JobScraper():
+class JobScraper:
     """Class to facilitate job scraping from various online platforms.
 
     Attributes:
@@ -264,17 +264,9 @@ class JobScraper():
 
                 print(f"{search_data['search_term']}, {search_data['job_type']} em {search_data['location']} no site(s) {search_data['site_name']}")
 
-            jobs = scrape_jobs(
-                site_name=search_data["site_name"],
-                job_type=search_data["job_type"],
-                search_term=search_data["search_term"],
-                location=search_data["location"],
-                results_wanted=search_data["results_wanted"],
-                is_remote=search_data["is_remote"],
-                offset=search_data["offset"],
-                # proxy=proxy,
-                country_indeed=search_data["country_indeed"],
-            )
+            scraper_proxy = JobScraperProxy(self)
+            jobs = scraper_proxy.scrape_with_proxy(verbose, **search_data)
+
         except Exception as e:
             self.jobs = None
             raise JobScraperException(f"Error while scraping jobs: {e}")
@@ -283,6 +275,56 @@ class JobScraper():
         
         finally:
             return self.jobs
+        
+
+class JobScraperProxy:
+
+    def __init__(self, job_scraper: JobScraper):
+        """ Initializes the JobScraperProxy with default values.
+
+        Args:
+            job_scraper (JobScraper): The JobScraper instance to be used for scraping jobs.
+
+        Attributes:
+            job_scraper (JobScraper): The JobScraper instance to be used for scraping jobs.
+            proxies (list): List of proxies to be used for scraping jobs.        
+        """
+
+        self.job_scraper = job_scraper
+        self.proxies = [
+            None, # At first, try without proxy
+            "http://jobspy:5a4vpWtj4EeJ2hoYzk@us.smartproxy.com:10001",
+            "https://jobspy:5a4vpWtj4EeJ2hoYzk@us.smartproxy.com:10001",
+            "socks5://jobspy:5a4vpWtj4EeJ2hoYzk@us.smartproxy.com:10001"
+        ]
+
+    def scrape_with_proxy(self, verbose=False, **kwargs):
+        """Scrapes jobs based on selected options and returns the results.
+
+        Args:
+            kwargs: Keyword arguments to be passed to the JobScraper.get_jobs() function.
+        
+        Returns:
+            DataFrame: A DataFrame containing the scraped job data, or None in case of an error.
+        """
+
+        for proxy in self.proxies:
+            try:
+                if verbose:
+                    print(f"Trying to scrape jobs with proxy {proxy}")
+
+                # Adjust kwargs to include the proxy
+                kwargs["proxy"] = proxy
+
+                # Scrape jobs directly from the JobScraper instance, but with a proxy
+                return scrape_jobs(**kwargs)
+            
+            except Exception as e:
+                print(f"Error while scraping jobs with proxy {proxy}: {e}")
+                continue
+        
+        raise JobScraperException("Error while scraping jobs with proxy. All proxies failed tried and failed")
+
         
 
 if __name__ == "__main__":
@@ -298,7 +340,7 @@ if __name__ == "__main__":
     scraper.set_options("job_types", ["Tempo integral"])
     scraper.set_options("locations", ["Rio de Janeiro"])
     scraper.set_options("keywords", ["Python", "Sem experiência"])
-    # scraper.set_options("keywords", ["Python"])
     scraper.set_options("remote_options", ["Trabalho remoto"])
     scraper.get_jobs(verbose=True)
     print(scraper.jobs)
+
