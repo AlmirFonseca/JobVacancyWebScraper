@@ -10,7 +10,9 @@ from time import sleep
 from uuid import uuid4
 
 from user import User
+from file_link import FileLink
 from user_dao import create, get_by_email, update
+from file_link_dao import create_file_link
 
 
 logged_user = None
@@ -500,8 +502,6 @@ class UserPage(ttk.Frame):
         self.email = ttk.Label(user_info_frame, text="Email: ")
         self.email.pack(pady=5)
 
-        # TODO: add the user information
-
         # Frame to edit the user information (name, surname, username, email, password, confirm password)
         edit_user_frame = ttk.Frame(self)
         edit_user_frame.pack()
@@ -642,10 +642,10 @@ class AddCurriculumPage(ttk.Frame):
         button.pack(pady=60, padx=10)
 
     def add_curriculum(self, curriculum_link):
-
-        print(curriculum_link)
-
-        # TODO: add the logic to add the curriculum, and show a message box with the result        
+        file_link = FileLink(curriculum_link, logged_user._id)
+        file_link = create_file_link(file_link, token=logged_user.token)
+        
+        messagebox.showinfo("Sucesso", "Currículo adicionado com sucesso")
 
 
 class JobListPage(ttk.Frame):

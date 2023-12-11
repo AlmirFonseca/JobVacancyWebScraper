@@ -1,4 +1,4 @@
-from .database_facade import *
+from database_facade import *
 import sys
 sys.path.append('./src')
 sys.path.append('./src/models')
