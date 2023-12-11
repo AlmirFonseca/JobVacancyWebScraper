@@ -80,6 +80,17 @@ remote_options_dict:dict = {
     "Trabalho não remoto": False
 }
 
+class JobScraperException(Exception):
+    """Exception raised for errors in the job scraping process.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message="There was an error in the Job Scraper process"):
+        self.message = message
+        super().__init__(self.message)
+
 class JobScraper():
     """Class to facilitate job scraping from various online platforms.
 
@@ -134,6 +145,10 @@ class JobScraper():
         transposed_values = []
         
         for key in keys:
+
+            if key not in dict_to_transpose.keys():
+                raise JobScraperException(f"Invalid key '{key}' provided")
+
             value = dict_to_transpose.get(key, None)
             if value:
                 transposed_values.append(dict_to_transpose[key])
@@ -150,7 +165,6 @@ class JobScraper():
             list: A list of available options for the specified data type, or None if the data type is invalid.
         """
 
-            
         if data_type not in self.data_types:
             return None
         
@@ -169,7 +183,7 @@ class JobScraper():
         
         # Check if the data type is valid and if the list of values is not empty
         if data_type not in self.data_types or not values:
-            return False
+            raise JobScraperException("Invalid data type or empty list of values")
         
         available_options = self.get_options(data_type)
 
@@ -199,7 +213,7 @@ class JobScraper():
             
         # Check if the data type is valid and if the list of values is not empty
         if data_type not in self.data_types or not values:
-            return False
+            raise JobScraperException("Invalid data type or empty list of values")
         
         available_options = self.get_options(data_type)
 
@@ -262,9 +276,8 @@ class JobScraper():
                 country_indeed=search_data["country_indeed"],
             )
         except Exception as e:
-            print(e)
             self.jobs = None
-        
+            raise JobScraperException(f"Error while scraping jobs: {e}")
         else:
             self.jobs = jobs
         
