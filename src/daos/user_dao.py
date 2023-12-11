@@ -1,4 +1,4 @@
-from .database_facade import update as db_update, insert, select, delete as db_delete
+from database_facade import update as db_update, insert, select, delete as db_delete
 import sys
 sys.path.append('./src')
 sys.path.append('./src/models')
