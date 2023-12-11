@@ -1,5 +1,7 @@
 import unittest
-from src.emailer.emailer import Emailer
+import sys
+sys.path.append('./src/emailer')
+from emailer import Emailer
 from email.mime.text import MIMEText
 from unittest.mock import patch
 
