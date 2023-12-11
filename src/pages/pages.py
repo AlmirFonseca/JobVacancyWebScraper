@@ -4,7 +4,7 @@ import sys
 sys.path.append('./src/emailer')
 from emailer import Emailer
 from tkinter import messagebox, ttk
-
+from time import sleep
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -72,7 +72,7 @@ class LoginPage(ttk.Frame):
 
         # Sign up button
         button = ttk.Button(self, text="Não tem conta? Cadastre-se",
-                            command=lambda : controller.show_frame(SignUpPage))
+                            command=lambda _: controller.show_frame(SignUpPage))
 
         button.pack(padx=100, pady=100, ipadx=20)
 
@@ -80,7 +80,7 @@ class LoginPage(ttk.Frame):
 class ForgotPasswordPage(ttk.Frame):
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
-
+        self.controller = controller
         # Create a label and button
         label = ttk.Label(self, text="Change Password")
 
@@ -94,9 +94,9 @@ class ForgotPasswordPage(ttk.Frame):
         ttk.Label(self.email_frame, text="Enter your email address").pack()
         self.email_entry = ttk.Entry(self.email_frame)  # TODO: add email validation callback
         self.email_entry.pack()
-        email_submit = ttk.Button(self.email_frame, text="Submit",
+        self.email_submit = ttk.Button(self.email_frame, text="Submit",
                                  command=lambda: self.send_recovery_code())
-        email_submit.pack(pady=50)
+        self.email_submit.pack(pady=50)
         self.email_frame.pack()
 
         # Frame for Code Verification
@@ -120,23 +120,30 @@ class ForgotPasswordPage(ttk.Frame):
         self.confirm_password_entry = ttk.Entry(self.reset_frame, show="*")
         self.confirm_password_entry.pack() # TODO: add a password match validation callback
         reset_submit = ttk.Button(self.reset_frame, text="Reset Password",
-                                 command=lambda: self.reset_password)
+                                 command=lambda: self.reset_password())
         reset_submit.pack()
 
     def send_recovery_code(self):
+        # disable the email_submit button
+        self.email_submit.config(state="disabled")
         email = self.email_entry.get()
-        # TODO: add sending recovery code logic
         emailer = Emailer()
         if emailer.is_valid_email(email):
             print('enviando e-mail')
+            # self.reset_code = secrets.randbelow(1_000_000)
+            # emailer.send_email(to_email=email, subject="Recovery code Job Scraper",
+            #                    body=f"Recovery code: {self.reset_code:06d}")
             self.reset_code = secrets.randbelow(1_000_000)
-            emailer.send_email(to_email=email, subject="Recovery code Job Scraper",
+            emailer.mock_send_email(to_email=email, subject="Recovery code Job Scraper",
                                body=f"Recovery code: {self.reset_code:06d}")
             # Hide the email frame and show the code frame
             self.email_frame.pack_forget()
             self.code_frame.pack()
         else:
-            messagebox.showinfo("Error", "E-mail inválido")
+            messagebox.showinfo("Error", "Invalid e-mail ")
+        
+        # enable the email_submit button
+        self.email_submit.config(state="normal")
 
     def verify_code(self):
         code = self.code_entry.get()
@@ -154,6 +161,7 @@ class ForgotPasswordPage(ttk.Frame):
         if new_password == confirm_password:
             # TODO: add password reset logic
             messagebox.showinfo("Success", "Password reset successfully")
+            self.controller.show_frame(LoginPage)
         else:
             messagebox.showerror("Error", "Passwords do not match")
 
