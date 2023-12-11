@@ -7,7 +7,7 @@ sys.path.append('./src/infra')
 import psycopg2
 
 from config import ProductionConfig
-from helper import Singleton
+from singleton import Singleton
 
 logger = logging.getLogger(__name__)
 

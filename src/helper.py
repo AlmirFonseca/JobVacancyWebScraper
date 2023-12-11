@@ -1,4 +1,7 @@
-from src.infra.pgsql_connection import PostgreSqlServerConnection
+import sys
+sys.path.append('./src/infra')
+
+from pgsql_connection import PostgreSqlServerConnection
 
 def valida_autenticacao(f):
     def wrapper(*args, **kargs):
