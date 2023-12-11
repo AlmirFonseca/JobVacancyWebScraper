@@ -1,6 +1,6 @@
 import unittest
 import sys
-sys.path.append('./src/user')
+sys.path.append('./src/models')
 
 from user import User
 
