@@ -1,10 +1,7 @@
 import database_facade as dbf
 import sys
 sys.path.append('./src')
-sys.path.append('./src/models')
 
-from user import User
-from skill import Skill
 from helper import valida_autenticacao
 
 @valida_autenticacao
@@ -14,6 +11,8 @@ def create_user_skill(user_id: int, skill_id: int, *args, **kargs) -> bool:
     Args:
         user_id: user id.
         skill_id: skill id.
+    Returns:
+        True if the user_skill was created, False otherwise.
     """
     data = {
         'user_id': user_id,
