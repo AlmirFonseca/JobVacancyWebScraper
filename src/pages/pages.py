@@ -201,7 +201,9 @@ class ForgotPasswordPage(ttk.Frame):
         new_password = self.new_password_entry.get()
         confirm_password = self.confirm_password_entry.get()
         if new_password == confirm_password:
-            # TODO: add password reset logic
+            global logged_user
+            logged_user.password = User.generate_key(new_password)
+            logged_user = update(logged_user, token=logged_user.token)
             messagebox.showinfo("Success", "Password reset successfully")
             self.reset_frame.pack_forget()
             self.email_frame.pack()
