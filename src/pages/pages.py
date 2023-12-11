@@ -2,9 +2,18 @@ import tkinter as tk
 import secrets
 import sys
 sys.path.append('./src/emailer')
+sys.path.append('./src/models')
+sys.path.append('./src/daos')
 from emailer import Emailer
 from tkinter import messagebox, ttk
 from time import sleep
+from uuid import uuid4
+
+from user import User
+from user_dao import create, get_by_email
+
+
+logged_user = None
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -72,7 +81,7 @@ class LoginPage(ttk.Frame):
 
         # Sign up button
         button = ttk.Button(self, text="Não tem conta? Cadastre-se",
-                            command=lambda _: controller.show_frame(SignUpPage))
+                            command=lambda: controller.show_frame(SignUpPage))
 
         button.pack(padx=100, pady=100, ipadx=20)
 
@@ -253,8 +262,14 @@ class SignUpPage(ttk.Frame):
         button.grid(row=9, column=0, columnspan=3, sticky="n", pady=50, padx=10)
 
     def sign_up(self, name, surname, username, email, password, confirm_password):
+        if password != confirm_password:
+            messagebox.showerror("Erro", "As senhas não são iguais")
+            return
         
-        # TODO: add the sign up logic
+        token = str(uuid4())
+        logged_user = User(name, email, password, token, surname)
+        logged_user = create(logged_user)
+        
         # GO to the compentencies page
         self.controller.show_frame(CompentenciesPage)
 
