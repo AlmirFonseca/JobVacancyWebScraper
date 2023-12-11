@@ -1,6 +1,10 @@
 import tkinter as tk
-
+import secrets
+import sys
+sys.path.append('./src/emailer')
+from emailer import Emailer
 from tkinter import messagebox, ttk
+
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -22,6 +26,7 @@ class StartPage(tk.Frame):
                             command=lambda: controller.show_frame(LoginPage))
 
         button.pack(pady=40, padx=10, ipadx=20)
+
 
 class LoginPage(ttk.Frame):
     def __init__(self, parent, controller):
@@ -54,7 +59,7 @@ class LoginPage(ttk.Frame):
 
         # Forgot password
         forgot_password = tk.Label(self, text="Esqueceu sua senha?", fg="blue", background="#111")
-        forgot_password.bind("<Button-1>", lambda: controller.show_frame(ForgotPasswordPage))
+        forgot_password.bind("<Button-1>", lambda _: controller.show_frame(ForgotPasswordPage))
         forgot_password.pack(padx=20, pady=5)
 
         # Sign in button
@@ -67,9 +72,10 @@ class LoginPage(ttk.Frame):
 
         # Sign up button
         button = ttk.Button(self, text="Não tem conta? Cadastre-se",
-                            command=lambda: controller.show_frame(SignUpPage))
+                            command=lambda : controller.show_frame(SignUpPage))
 
         button.pack(padx=100, pady=100, ipadx=20)
+
 
 class ForgotPasswordPage(ttk.Frame):
     def __init__(self, parent, controller):
@@ -84,11 +90,12 @@ class ForgotPasswordPage(ttk.Frame):
 
         # Frame for Email Address Input
         self.email_frame = ttk.Frame(self)
+        self.reset_code = None
         ttk.Label(self.email_frame, text="Enter your email address").pack()
         self.email_entry = ttk.Entry(self.email_frame)  # TODO: add email validation callback
         self.email_entry.pack()
         email_submit = ttk.Button(self.email_frame, text="Submit",
-                                 command=lambda: self.send_recovery_code)
+                                 command=lambda: self.send_recovery_code())
         email_submit.pack(pady=50)
         self.email_frame.pack()
 
@@ -98,10 +105,10 @@ class ForgotPasswordPage(ttk.Frame):
         self.code_entry = ttk.Entry(self.code_frame) # Add a code structure validation callback
         self.code_entry.pack()
         code_submit = ttk.Button(self.code_frame, text="Submit",
-                                command=lambda: self.verify_code)
+                                command=lambda: self.verify_code())
         code_submit.pack()
         resend_code = ttk.Button(self.code_frame, text="Resend Code",
-                                command=lambda: self.send_recovery_code)
+                                command=lambda: self.send_recovery_code())
         resend_code.pack()
 
         # Frame for Password Reset
@@ -119,18 +126,27 @@ class ForgotPasswordPage(ttk.Frame):
     def send_recovery_code(self):
         email = self.email_entry.get()
         # TODO: add sending recovery code logic
-
-        # Hide the email frame and show the code frame
-        self.email_frame.pack_forget()
-        self.code_frame.pack()
+        emailer = Emailer()
+        if emailer.is_valid_email(email):
+            print('enviando e-mail')
+            self.reset_code = secrets.randbelow(1_000_000)
+            emailer.send_email(to_email=email, subject="Recovery code Job Scraper",
+                               body=f"Recovery code: {self.reset_code:06d}")
+            # Hide the email frame and show the code frame
+            self.email_frame.pack_forget()
+            self.code_frame.pack()
+        else:
+            messagebox.showinfo("Error", "E-mail inválido")
 
     def verify_code(self):
         code = self.code_entry.get()
         # TODO: add code verification logic
-
-        # Hide the code frame and show the reset frame
-        self.code_frame.pack_forget()
-        self.reset_frame.pack()
+        if int(code) != self.reset_code:
+            messagebox.showinfo("Error", "Invalid code")
+        else:
+            # Hide the code frame and show the reset frame
+            self.code_frame.pack_forget()
+            self.reset_frame.pack()
 
     def reset_password(self):
         new_password = self.new_password_entry.get()
@@ -140,6 +156,7 @@ class ForgotPasswordPage(ttk.Frame):
             messagebox.showinfo("Success", "Password reset successfully")
         else:
             messagebox.showerror("Error", "Passwords do not match")
+
 
 class SignUpPage(ttk.Frame):
     # Fields: Name, Surname, Username, Email, Password, Confirm Password
@@ -218,19 +235,12 @@ class SignUpPage(ttk.Frame):
         # Center the button
         button.grid(row=9, column=0, columnspan=3, sticky="n", pady=50, padx=10)
 
-
-
-        
-
     def sign_up(self, name, surname, username, email, password, confirm_password):
         
         # TODO: add the sign up logic
-
-
-        
-        
         # GO to the compentencies page
         self.controller.show_frame(CompentenciesPage)
+
 
 class CompentenciesPage(ttk.Frame):
 
@@ -296,6 +306,7 @@ class CompentenciesPage(ttk.Frame):
             # Go to the seniority level page
             self.controller.show_frame(SeniorityLevelPage)
 
+
 class SeniorityLevelPage(ttk.Frame):
     
     def __init__(self, parent, controller):
@@ -344,6 +355,7 @@ class SeniorityLevelPage(ttk.Frame):
             # Go to the home page
             self.controller.show_frame(HomePage)
 
+
 class HomePage(ttk.Frame):
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
@@ -387,6 +399,7 @@ class HomePage(ttk.Frame):
         button = ttk.Button(self, text="Ver vagas",
                             command=lambda: controller.show_frame(JobListPage))
         button.pack(pady=10, padx=10)
+
 
 class UserPage(ttk.Frame):
 
@@ -508,6 +521,7 @@ class UserPage(ttk.Frame):
 
         # TODO: add the logic to edit the user information, and show a message box with the result
 
+
 class AddCurriculumPage(ttk.Frame):
 
     def __init__(self, parent, controller):
@@ -558,6 +572,7 @@ class AddCurriculumPage(ttk.Frame):
         print(curriculum_link)
 
         # TODO: add the logic to add the curriculum, and show a message box with the result        
+
 
 class JobListPage(ttk.Frame):
 
