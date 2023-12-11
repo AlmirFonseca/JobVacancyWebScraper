@@ -6,7 +6,8 @@ from emailer import Emailer
 from tkinter import messagebox, ttk
 from time import sleep
 
-class StartPage(tk.Frame):
+
+class StartPage(ttk.Frame):
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
         
@@ -23,7 +24,7 @@ class StartPage(tk.Frame):
     
         # Go to the login page
         button = ttk.Button(self, text="Vamos Começar!",
-                            command=lambda: controller.show_frame(LoginPage))
+                            command=lambda: controller.show_frame("LoginPage"))
 
         button.pack(pady=40, padx=10, ipadx=20)
 
@@ -59,7 +60,7 @@ class LoginPage(ttk.Frame):
 
         # Forgot password
         forgot_password = tk.Label(self, text="Esqueceu sua senha?", fg="blue", background="#111")
-        forgot_password.bind("<Button-1>", lambda _: controller.show_frame(ForgotPasswordPage))
+        forgot_password.bind("<Button-1>", lambda _: controller.show_frame("ForgotPasswordPage"))
         forgot_password.pack(padx=20, pady=5)
 
         # Sign in button
@@ -72,7 +73,7 @@ class LoginPage(ttk.Frame):
 
         # Sign up button
         button = ttk.Button(self, text="Não tem conta? Cadastre-se",
-                            command=lambda _: controller.show_frame(SignUpPage))
+                            command=lambda _: controller.show_frame("SignUpPage"))
 
         button.pack(padx=100, pady=100, ipadx=20)
 
@@ -101,8 +102,10 @@ class ForgotPasswordPage(ttk.Frame):
 
         # Frame for Code Verification
         self.code_frame = ttk.Frame(self)
-        ttk.Label(self.code_frame, text="Enter the code you received").pack() 
         
+        ttk.Label(self.code_frame, text="Enter the code you received").pack() 
+        self.recovery_code_label = ttk.Label(self.code_frame)
+        self.recovery_code_label.pack()
         self.code_entry = ttk.Entry(self.code_frame) # Add a code structure validation callback
         self.code_entry.pack()
         code_submit = ttk.Button(self.code_frame, text="Submit",
@@ -141,7 +144,7 @@ class ForgotPasswordPage(ttk.Frame):
             self.email_frame.pack_forget()
             self.code_frame.pack()
             string_recovery_code = f"Code: {self.reset_code:06d} (não estamos enviando emails para não bloquear o endereço de email)"
-            ttk.Label(self.code_frame, text=string_recovery_code).pack()
+            self.recovery_code_label.config(text=string_recovery_code)
         else:
             messagebox.showinfo("Error", "Invalid e-mail ")
         
@@ -154,8 +157,7 @@ class ForgotPasswordPage(ttk.Frame):
 
     def verify_code(self):
         code = self.code_entry.get()
-        # TODO: add code verification logic
-        if code != str(self.reset_code):
+        if code != f"{self.reset_code:06d}":
             messagebox.showinfo("Error", "Invalid code")
         else:
             # Hide the code frame and show the reset frame
@@ -170,7 +172,7 @@ class ForgotPasswordPage(ttk.Frame):
             messagebox.showinfo("Success", "Password reset successfully")
             self.reset_frame.pack_forget()
             self.email_frame.pack()
-            self.controller.show_frame(LoginPage)
+            self.controller.show_frame("LoginPage")
         else:
             messagebox.showerror("Error", "Passwords do not match")
 
@@ -256,7 +258,7 @@ class SignUpPage(ttk.Frame):
         
         # TODO: add the sign up logic
         # GO to the compentencies page
-        self.controller.show_frame(CompentenciesPage)
+        self.controller.show_frame("CompentenciesPage")
 
 
 class CompentenciesPage(ttk.Frame):
@@ -307,7 +309,7 @@ class CompentenciesPage(ttk.Frame):
         button.grid(row=num_rows + 3, column=0, columnspan=3, pady=50)
 
         # Button to go back to the login page
-        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame(LoginPage))
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("LoginPage"))
         button.grid(row=num_rows + 4, column=0, columnspan=3, pady=10)
 
     def submit_selection(self):
@@ -321,7 +323,7 @@ class CompentenciesPage(ttk.Frame):
             return
         else:
             # Go to the seniority level page
-            self.controller.show_frame(SeniorityLevelPage)
+            self.controller.show_frame("SeniorityLevelPage")
 
 
 class SeniorityLevelPage(ttk.Frame):
@@ -358,7 +360,7 @@ class SeniorityLevelPage(ttk.Frame):
         button.grid(row=len(seniority_levels)+2, column=0, columnspan=3, pady=50, padx=10)
 
         # Button to go back to the login page
-        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame(LoginPage))
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("LoginPage"))
         button.grid(row=len(seniority_levels)+3,column=0, columnspan=3, pady=20, padx=10)
         
     def submit_selection(self):
@@ -370,7 +372,7 @@ class SeniorityLevelPage(ttk.Frame):
             return
         else:
             # Go to the home page
-            self.controller.show_frame(HomePage)
+            self.controller.show_frame("HomePage")
 
 
 class HomePage(ttk.Frame):
@@ -383,17 +385,17 @@ class HomePage(ttk.Frame):
 
         # Button to go to the user page
         button = ttk.Button(header, text="Perfil",
-                            command=lambda: controller.show_frame(UserPage))
+                            command=lambda: controller.show_frame("UserPage"))
         button.pack(side="left", padx=30, pady=30)
 
         # Button to go to the compentencies page
         button = ttk.Button(header, text="Competências",
-                            command=lambda: controller.show_frame(CompentenciesPage))
+                            command=lambda: controller.show_frame("CompentenciesPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
         # Button to go to the seniority level page
         button = ttk.Button(header, text="Nível de Senioridade",
-                            command=lambda: controller.show_frame(SeniorityLevelPage))
+                            command=lambda: controller.show_frame("SeniorityLevelPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
         # Create a label and button
@@ -409,12 +411,12 @@ class HomePage(ttk.Frame):
 
         # Button to add a curriculum
         button = ttk.Button(self, text="Adicionar currículo",
-                            command=lambda: controller.show_frame(AddCurriculumPage))
+                            command=lambda: controller.show_frame("AddCurriculumPage"))
         button.pack(pady=60, padx=10)
 
         # Button to see the list of jobs
         button = ttk.Button(self, text="Ver vagas",
-                            command=lambda: controller.show_frame(JobListPage))
+                            command=lambda: controller.show_frame("JobListPage"))
         button.pack(pady=10, padx=10)
 
 
@@ -429,17 +431,17 @@ class UserPage(ttk.Frame):
 
         # Button to go to the user page
         button = ttk.Button(header, text="Home",
-                            command=lambda: controller.show_frame(HomePage))
+                            command=lambda: controller.show_frame("HomePage"))
         button.pack(side="left", padx=30, pady=30)
 
         # Button to go to the compentencies page
         button = ttk.Button(header, text="Competências",
-                            command=lambda: controller.show_frame(CompentenciesPage))
+                            command=lambda: controller.show_frame("CompentenciesPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
         # Button to go to the seniority level page
         button = ttk.Button(header, text="Nível de Senioridade",
-                            command=lambda: controller.show_frame(SeniorityLevelPage))
+                            command=lambda: controller.show_frame("SeniorityLevelPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
         # Create a label and button
@@ -550,17 +552,17 @@ class AddCurriculumPage(ttk.Frame):
 
         # Button to go to the user page
         button = ttk.Button(header, text="Home",
-                            command=lambda: controller.show_frame(HomePage))
+                            command=lambda: controller.show_frame("HomePage"))
         button.pack(side="left", padx=30, pady=30)
 
         # Button to go to the compentencies page
         button = ttk.Button(header, text="Competências",
-                            command=lambda: controller.show_frame(CompentenciesPage))
+                            command=lambda: controller.show_frame("CompentenciesPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
         # Button to go to the seniority level page
         button = ttk.Button(header, text="Nível de Senioridade",
-                            command=lambda: controller.show_frame(SeniorityLevelPage))
+                            command=lambda: controller.show_frame("SeniorityLevelPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
         # Create a label and button
@@ -602,17 +604,17 @@ class JobListPage(ttk.Frame):
 
          # Button to go to the user page
         button = ttk.Button(header, text="Home",
-                            command=lambda: controller.show_frame(HomePage))
+                            command=lambda: controller.show_frame("HomePage"))
         button.pack(side="left", padx=30, pady=30)
 
         # Button to go to the compentencies page
         button = ttk.Button(header, text="Competências",
-                            command=lambda: controller.show_frame(CompentenciesPage))
+                            command=lambda: controller.show_frame("CompentenciesPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
         # Button to go to the seniority level page
         button = ttk.Button(header, text="Nível de Senioridade",
-                            command=lambda: controller.show_frame(SeniorityLevelPage))
+                            command=lambda: controller.show_frame("SeniorityLevelPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
         # Create a label and button
