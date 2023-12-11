@@ -1,16 +1,18 @@
 import pandas as pd
 
+from typing import List, Dict, Optional
+
 from jobspy import scrape_jobs
 
 # Dictionaries for mapping various terms to their standardized forms.
-website_dict = {
+website_dict:dict = {
     "LinkedIn": "linkedin",
     "Indeed": "indeed",
     "Glassdoor": "glassdoor",
     "ZipRecruiter": "zip_recruiter"
 }
 
-job_type_dict = {
+job_type_dict:dict = {
     "Tempo integral": "fulltime",
     "Contrato": "contract",
     "Meio período": "parttime",
@@ -23,7 +25,7 @@ job_type_dict = {
     "Outros": "other"
 }
 
-country_dict = {
+country_dict:dict = {
     "Rio de Janeiro": "rio de janeiro, brazil",
     "São Paulo": "sao paulo, brazil",
     "Brasília": "brasilia, brazil",
@@ -49,7 +51,7 @@ country_dict = {
     # Pode adicionar mais, mas sem a garantia de encontrar vagas para localidades menores
 }
 
-keywords_dict = {
+keywords_dict:dict = {
     "Cientista de dados": "data scientist",
     "Engenheiro de dados": "data engineer",
     "Analista de dados": "data analyst",
@@ -61,7 +63,7 @@ keywords_dict = {
     # Pode adicionar mais
 }
 
-remote_options_dict = {
+remote_options_dict:dict = {
     "Trabalho remoto": True,
     "Trabalho não remoto": False
 }
@@ -86,11 +88,11 @@ class JobScraper():
     def __init__(self):
         """Initializes the JobScraper with default values."""
 
-        self.jobs = None
+        self.job: Optional[pd.DataFrame] = None
 
-        self.data_types = ["site_names", "job_types", "countries", "keywords", "remote_options"]
+        self.data_types: List[str] = ["site_names", "job_types", "countries", "keywords", "remote_options"]
 
-        self.available_options = {
+        self.available_options: Dict[str, List[str]] = {
             "site_names": list(website_dict.keys()),
             "job_types": list(job_type_dict.keys()),
             "countries": list(country_dict.keys()),
@@ -98,7 +100,7 @@ class JobScraper():
             "remote_options": list(remote_options_dict.keys())
         }
 
-        self.selected_options = {
+        self.selected_options: Dict[str, List[str]] = {
             "site_names": [],
             "job_types": [],
             "countries": [],
@@ -106,7 +108,7 @@ class JobScraper():
             "remote_options": []
         }
 
-    def transpose_from_dict(self, dict_to_transpose, keys):
+    def transpose_from_dict(self, dict_to_transpose: Dict[str, str], keys: List[str]) -> List[str]:
         """Transposes selected keys from a dictionary to their corresponding values used by the scraper.
 
         Args:
@@ -126,7 +128,7 @@ class JobScraper():
 
         return transposed_values
     
-    def get_options(self, data_type):
+    def get_options(self, data_type: str) -> Optional[List[str]]:
         """Retrieves available options for a given data type.
 
         Args:
@@ -142,7 +144,7 @@ class JobScraper():
         
         return self.available_options.get(data_type, None)
     
-    def set_options(self, data_type, values):
+    def set_options(self, data_type: str, values: List[str]) -> bool:
         """Sets the user-selected options for a given data type.
 
         Args:
@@ -172,7 +174,7 @@ class JobScraper():
 
         return True
     
-    def remove_options(self, data_type, values):
+    def remove_options(self, data_type: str, values: List[str]) -> bool:
         """Removes selected options for a given data type.
 
         Args:
@@ -202,7 +204,7 @@ class JobScraper():
 
         return True
 
-    def get_jobs(self, num_jobs=20, offset=0):
+    def get_jobs(self, num_jobs: int = 20, offset: int = 0) -> Optional[pd.DataFrame]:
         """Scrapes jobs based on selected options and returns the results.
 
         Args:
@@ -236,24 +238,3 @@ class JobScraper():
         finally:
             return self.jobs
         
-# jobscraper = JobScraper()
-
-# jobscraper.set_options("site_names", ["LinkedIn", "Indeed"])
-# jobscraper.set_options("job_types", ["Tempo integral"])
-# jobscraper.set_options("countries", ["Rio de Janeiro"])
-# jobscraper.set_options("keywords", ["Cientista de dados"])
-# jobscraper.set_options("remote_options", ["Trabalho remoto"])
-
-# print(jobscraper.selected_options)
-
-# jobs = jobscraper.get_jobs()
-
-# # formatting for pandas
-# pd.set_option("display.max_columns", None)
-# pd.set_option("display.max_rows", None)
-# pd.set_option("display.width", None)
-# pd.set_option("display.max_colwidth", 50)  # set to 0 to see full job url / desc
-
-# print(jobs.shape)
-# print(jobs.columns)
-# print(jobs)
