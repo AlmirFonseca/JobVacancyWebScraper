@@ -11,7 +11,6 @@ from uuid import uuid4
 
 from user import User
 from file_link import FileLink
-from skill import Skill
 from user_dao import create, get_by_email, update
 from file_link_dao import create_file_link
 from skill_dao import get_skills
@@ -63,8 +62,6 @@ class LoginPage(ttk.Frame):
         email_entry = ttk.Entry(self)
         email_entry.pack()
 
-        # TODO: add a email validation callback
-
         # Password label
         password_label = ttk.Label(self, text="Senha")
         password_label.pack()
@@ -83,8 +80,6 @@ class LoginPage(ttk.Frame):
                             command=lambda: self.login(email_entry.get(), password_entry.get()))
         # Change font
         button.pack(pady=10)
-
-        # TODO: add a login validation on database callback
 
         # Sign up button
         button = ttk.Button(self, text="Não tem conta? Cadastre-se",
@@ -126,7 +121,7 @@ class ForgotPasswordPage(ttk.Frame):
         self.email_frame = ttk.Frame(self)
         self.reset_code = None
         ttk.Label(self.email_frame, text="Enter your email address").pack()
-        self.email_entry = ttk.Entry(self.email_frame)  # TODO: add email validation callback
+        self.email_entry = ttk.Entry(self.email_frame)
         self.email_entry.pack()
         self.email_submit = ttk.Button(self.email_frame, text="Submit",
                                  command=lambda: self.send_recovery_code())
@@ -155,7 +150,7 @@ class ForgotPasswordPage(ttk.Frame):
         self.new_password_entry.pack() # TODO: add a password validation callback
         tk.Label(self.reset_frame, text="Confirm your new password").pack()
         self.confirm_password_entry = ttk.Entry(self.reset_frame, show="*")
-        self.confirm_password_entry.pack() # TODO: add a password match validation callback
+        self.confirm_password_entry.pack()
         reset_submit = ttk.Button(self.reset_frame, text="Reset Password",
                                  command=lambda: self.reset_password())
         reset_submit.pack()
@@ -697,7 +692,7 @@ class JobListPage(ttk.Frame):
 
         # Change font size
         label.config(font=("Courier", 30))
-        label.pack(pady=60, padx=10) 
+        label.pack(pady=60, padx=10)
 
         # TODO: add the logic to retrieve the jobs from the database (and show them on the screen)
 
