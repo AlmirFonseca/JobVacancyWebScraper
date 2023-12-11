@@ -1,4 +1,4 @@
-import database_facade as dbf
+from .database_facade import *
 import sys
 sys.path.append('./src')
 
@@ -18,7 +18,7 @@ def create_user_vacancy(user_id: int, job_id: int, *args, **kargs) -> bool:
         'user_id': user_id,
         'job_id': job_id,
     }
-    dbf.insert('rel_user_vacancy', data)
+    insert('rel_user_vacancy', data)
     return True
 
 @valida_autenticacao
@@ -30,7 +30,7 @@ def get_user_vacancies(*args, **kargs) -> list:
     """
     table = 'rel_user_vacancy'
     columns = ('user_id', 'job_id')
-    return dbf.select(table, columns)
+    return select(table, columns)
 
 @valida_autenticacao
 def get_user_vacancies_by_user_id(user_id: int, *args, **kargs) -> list:
@@ -44,7 +44,7 @@ def get_user_vacancies_by_user_id(user_id: int, *args, **kargs) -> list:
     table = 'rel_user_vacancy'
     columns = ('user_id', 'job_id')
     where = {'user_id': user_id}
-    return dbf.select(table, columns, where)
+    return select(table, columns, where)
 
 @valida_autenticacao
 def get_user_vacancies_by_vacancy_id(vacancy_id: int, *args, **kargs) -> list:
@@ -58,7 +58,7 @@ def get_user_vacancies_by_vacancy_id(vacancy_id: int, *args, **kargs) -> list:
     table = 'rel_user_vacancy'
     columns = ('user_id', 'job_id')
     where = {'job_id': vacancy_id}
-    return dbf.select(table, columns, where)
+    return select(table, columns, where)
 
 @valida_autenticacao
 def delete_user_vacancy(user_id: int, job_id: int, *args, **kargs) -> bool:
@@ -72,5 +72,5 @@ def delete_user_vacancy(user_id: int, job_id: int, *args, **kargs) -> bool:
     """
     table = 'rel_user_vacancy'
     where = {'user_id': user_id, 'job_id': job_id}
-    dbf.delete(table, where)
+    delete(table, where)
     return True

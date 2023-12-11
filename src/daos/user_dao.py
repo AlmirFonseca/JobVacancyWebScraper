@@ -1,4 +1,4 @@
-import database_facade as dbf
+from database_facade import update as db_update, insert, select, delete as db_delete
 import sys
 sys.path.append('./src')
 sys.path.append('./src/models')
@@ -23,7 +23,7 @@ def create(user: User, *args, **kargs) -> User:
         'user_last_name': user.last_name,
         'user_level': user.level
     }
-    id = dbf.insert('users', data, ('user_id',))[0]
+    id = insert('users', data, ('user_id',))[0]
     user._id = id
     return user
 
@@ -39,7 +39,7 @@ def get_by_email(email: str, *args, **kargs) -> User:
     table = 'users'
     columns = ('user_name', 'user_email', 'user_password', 'user_token', 'user_last_name', 'user_level', 'user_id')
     where = {'user_email': email}
-    fetch = dbf.select(table, columns, where)
+    fetch = select(table, columns, where)
     return User(*fetch[0]) if fetch else None
 
 @valida_autenticacao
@@ -54,7 +54,7 @@ def get_by_id(id: int, *args, **kargs) -> User:
     table = 'users'
     columns = ('user_name', 'user_email', 'user_password', 'user_token', 'user_last_name', 'user_level', 'user_id')
     where = {'user_id': id}
-    fetch = dbf.select(table, columns, where)
+    fetch = select(table, columns, where)
     return User(*fetch[0]) if fetch else None
 
 @valida_autenticacao
@@ -75,7 +75,7 @@ def update(user: User, *args, **kargs) -> bool:
         'user_level': user.level
     }
     where = {'user_id': user._id}
-    return dbf.update('users', data, where)
+    return db_update('users', data, where)
 
 @valida_autenticacao
 def delete(id: int, *args, **kargs) -> bool:
@@ -87,4 +87,4 @@ def delete(id: int, *args, **kargs) -> bool:
         bool: True if user was deleted, False otherwise
     """
     where = {'user_id': id}
-    return dbf.delete('users', where)
+    return db_delete('users', where)
