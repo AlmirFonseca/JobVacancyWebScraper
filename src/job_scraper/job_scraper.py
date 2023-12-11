@@ -52,15 +52,27 @@ country_dict:dict = {
 }
 
 keywords_dict:dict = {
-    "Cientista de dados": "data scientist",
-    "Engenheiro de dados": "data engineer",
-    "Analista de dados": "data analyst",
-    "Analista de BI": "business intelligence analyst",
-    "Matemático": "mathematician",
-    "Estatístico": "statistician",
-    "Engenheiro de machine learning": "machine learning engineer",
-    "Engenheiro eletrônico": "electronic engineer"
-    # Pode adicionar mais
+    "Python" : "Python", 
+    "C" : "C", 
+    "C++" : "C++", 
+    "C#" : "C#", 
+    "JavaScript" : "JavaScript", 
+    "Java" : "Java", 
+    "HTML" : "HTML", 
+    "CSS" : "CSS",
+    "PHP" : "PHP", 
+    "SQL" : "SQL", 
+    "Ruby" : "Ruby", 
+    "Julia" : "Julia", 
+    "SPARQL" : "SPARQL", 
+    "Swift" : "Swift", 
+    "TypeScript" : "TypeScript", 
+    "R" : "R",
+
+    "Sem experiência" : "sem experiencia",
+    "Junior" : "estagio",
+    "Pleno" : "fulltime",
+    "Sênior" : "senior"
 }
 
 remote_options_dict:dict = {

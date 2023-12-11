@@ -225,6 +225,8 @@ class SignUpPage(ttk.Frame):
     def sign_up(self, name, surname, username, email, password, confirm_password):
         
         # TODO: add the sign up logic
+
+
         
         
         # GO to the compentencies page
@@ -286,10 +288,13 @@ class CompentenciesPage(ttk.Frame):
         selected_competencies =[compentency for compentency, value in self.selected_compentencies.items() if value.get()]
         print(selected_competencies)
 
-        # TODO: add the validation for no selected compentencies
-
-        # Go to the seniority level page
-        self.controller.show_frame(SeniorityLevelPage)
+        # If there is no selected competency, show a message box with an error
+        if len(selected_competencies) == 0:
+            messagebox.showerror("Erro", "Selecione pelo menos uma competência")
+            return
+        else:
+            # Go to the seniority level page
+            self.controller.show_frame(SeniorityLevelPage)
 
 class SeniorityLevelPage(ttk.Frame):
     
@@ -331,10 +336,13 @@ class SeniorityLevelPage(ttk.Frame):
     def submit_selection(self):
         selected_seniority_level = self.selected_seniority_level.get()
 
-        # TODO: add the validation for no selected seniority level
-
-        # Go to the home page
-        self.controller.show_frame(HomePage)
+        # If there is no selected seniority level, show a message box with an error
+        if selected_seniority_level == -1:
+            messagebox.showerror("Erro", "Selecione um nível de senioridade")
+            return
+        else:
+            # Go to the home page
+            self.controller.show_frame(HomePage)
 
 class HomePage(ttk.Frame):
     def __init__(self, parent, controller):
