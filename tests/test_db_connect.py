@@ -1,7 +1,6 @@
 import unittest
 import sys
 sys.path.append('./src/infra')
-
 from pgsql_connection import PostgreSqlServerConnection
 
 
@@ -30,6 +29,7 @@ class TestDBConnection(unittest.TestCase):
                 cursor.execute('select 1;')
                 result = cursor.fetchall()
                 self.assertTrue(result)
+
 
 if __name__ == '__main__':
     unittest.main()
