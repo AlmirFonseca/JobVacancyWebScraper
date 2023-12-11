@@ -28,9 +28,20 @@ class TestJobScraper(unittest.TestCase):
         data_type = "site_names"
         self.assertEqual(self.scraper.get_options(data_type), ["LinkedIn","Indeed","Glassdoor","ZipRecruiter"])
 
-    def get_invalid_options(self):
+    def test_get_invalid_options(self):
         data_type = "invalid"
         self.assertIsNone(self.scraper.get_options(data_type))
-        
+
+    def test_scrape_jobs(self):
+
+        # Select the variables
+        self.scraper.set_options("site_names", ["LinkedIn", "Indeed"])
+        self.scraper.set_options("job_types", ["Tempo integral"])
+        self.scraper.set_options("locations", ["Rio de Janeiro"])
+        self.scraper.set_options("keywords", ["Python", "Sem experiência"])
+        self.scraper.set_options("remote_options", ["Trabalho remoto"])
+
+        self.assertIsNotNone(self.scraper.get_jobs())
+
 if __name__ == '__main__':
     unittest.main()
