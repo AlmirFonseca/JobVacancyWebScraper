@@ -40,6 +40,7 @@ class StartPage(tk.Frame):
 class LoginPage(ttk.Frame):
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
+        self.controller = controller
 
         # Create a label in left side
         label = ttk.Label(self, text="Iniciar sessão")
@@ -73,7 +74,7 @@ class LoginPage(ttk.Frame):
 
         # Sign in button
         button = ttk.Button(self, text="Entrar",
-                            command=lambda: print("Email: {}\nPassword: {}".format(email_entry.get(), password_entry.get())))
+                            command=lambda: self.login(email_entry.get(), password_entry.get()))
         # Change font
         button.pack(pady=10)
 
@@ -84,7 +85,25 @@ class LoginPage(ttk.Frame):
                             command=lambda: controller.show_frame(SignUpPage))
 
         button.pack(padx=100, pady=100, ipadx=20)
+    
+    def login(self, email, password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+    
+        user = get_by_email(email)
+        if user is None:
+            messagebox.showerror("Erro", "Email não cadastrado")
+            return
 
+        if not user.check_password(password):
+            messagebox.showerror("Erro", "Senha incorreta")
+            return
+        
+        global logged_user
+        logged_user = user
+        self.controller.show_frame(HomePage)
+    
 
 class ForgotPasswordPage(ttk.Frame):
     def __init__(self, parent, controller):
@@ -262,11 +281,16 @@ class SignUpPage(ttk.Frame):
         button.grid(row=9, column=0, columnspan=3, sticky="n", pady=50, padx=10)
 
     def sign_up(self, name, surname, username, email, password, confirm_password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+        
         if password != confirm_password:
             messagebox.showerror("Erro", "As senhas não são iguais")
             return
         
         token = str(uuid4())
+        global logged_user
         logged_user = User(name, email, password, token, surname)
         logged_user = create(logged_user)
         
