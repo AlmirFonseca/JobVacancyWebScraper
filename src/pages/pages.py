@@ -10,7 +10,7 @@ from time import sleep
 from uuid import uuid4
 
 from user import User
-from user_dao import create, get_by_email
+from user_dao import create, get_by_email, update
 
 
 logged_user = None
@@ -284,7 +284,7 @@ class SignUpPage(ttk.Frame):
         if not Emailer.is_valid_email(email):
             messagebox.showerror("Erro", "Email inválido")
             return
-        
+
         if password != confirm_password:
             messagebox.showerror("Erro", "As senhas não são iguais")
             return
@@ -572,10 +572,24 @@ class UserPage(ttk.Frame):
         button.pack(pady=100, padx=50)
         
     def edit_user(self, name, surname, username, email, password, confirm_password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+        
+        if password != confirm_password:
+            messagebox.showerror("Erro", "As senhas não são iguais")
+            return
+        
+        global logged_user
+        logged_user.name = name
+        logged_user.last_name = surname
+        logged_user.username = username
+        logged_user.email = email
+        logged_user.password = User.generate_key(password)
+        
+        logged_user = update(logged_user)
 
-        pass
-
-        # TODO: add the logic to edit the user information, and show a message box with the result
+        messagebox.showinfo("Sucesso", "Usuário editado com sucesso")
 
 
 class AddCurriculumPage(ttk.Frame):
