@@ -67,7 +67,12 @@ keywords_dict:dict = {
     "SPARQL" : "SPARQL", 
     "Swift" : "Swift", 
     "TypeScript" : "TypeScript", 
-    "R" : "R"
+    "R" : "R",
+
+    "Sem experiência" : "sem experiencia",
+    "Junior" : "estagio",
+    "Pleno" : "fulltime",
+    "Sênior" : "senior"
 }
 
 remote_options_dict:dict = {
