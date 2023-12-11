@@ -102,12 +102,12 @@ class JobScraper():
 
         self.job: Optional[pd.DataFrame] = None
 
-        self.data_types: List[str] = ["site_names", "job_types", "countries", "keywords", "remote_options"]
+        self.data_types: List[str] = ["site_names", "job_types", "locations", "keywords", "remote_options"]
 
         self.available_options: Dict[str, List[str]] = {
             "site_names": list(website_dict.keys()),
             "job_types": list(job_type_dict.keys()),
-            "countries": list(country_dict.keys()),
+            "locations": list(country_dict.keys()),
             "keywords": list(keywords_dict.keys()),
             "remote_options": list(remote_options_dict.keys())
         }
@@ -115,7 +115,7 @@ class JobScraper():
         self.selected_options: Dict[str, List[str]] = {
             "site_names": [],
             "job_types": [],
-            "countries": [],
+            "locations": [],
             "keywords": [],
             "remote_options": []
         }
@@ -216,7 +216,7 @@ class JobScraper():
 
         return True
 
-    def get_jobs(self, num_jobs: int = 20, offset: int = 0) -> Optional[pd.DataFrame]:
+    def get_jobs(self, num_jobs: int = 20, offset: int = 0, country: str = "brazil", verbose: bool = False) -> Optional[pd.DataFrame]:
         """Scrapes jobs based on selected options and returns the results.
 
         Args:
@@ -230,15 +230,36 @@ class JobScraper():
         try:
             # Execute the job scraping function with the selected options
             # Note: some options accept only one value, so we need to select the first element of the list
+            search_data = {
+                "site_name": self.transpose_from_dict(website_dict, self.selected_options["site_names"]),
+                "job_type": self.transpose_from_dict(job_type_dict, self.selected_options["job_types"])[0],
+                "search_term": " ".join(self.transpose_from_dict(keywords_dict, self.selected_options["keywords"])),
+                "location": self.transpose_from_dict(country_dict, self.selected_options["locations"])[0],
+                "results_wanted": num_jobs, # Be aware of the number of results, the higher the number, the higher the chance of being blocked (rotating proxy should work)
+                # "country_indeed": 
+                "is_remote": self.transpose_from_dict(remote_options_dict, self.selected_options["remote_options"])[0],
+                "offset": offset,  # Search for more results if you don't find enough jobs
+                "country_indeed": country
+            }
+
+            if verbose:
+                if search_data["is_remote"]:
+                    print("Buscando por vagas remotas ")
+                else:
+                    print(f"Buscando por ")
+
+                print(f"{search_data['search_term']}, {search_data['job_type']} em {search_data['location']} no site(s) {search_data['site_name']}")
+
             jobs = scrape_jobs(
-                site_name=self.transpose_from_dict(website_dict, self.selected_options["site_names"]),
-                job_type=self.transpose_from_dict(job_type_dict, self.selected_options["job_types"])[0],
-                search_term=self.transpose_from_dict(keywords_dict, self.selected_options["keywords"])[0],
-                location=self.transpose_from_dict(country_dict, self.selected_options["countries"])[0],
-                results_wanted=10, # Be aware of the number of results, the higher the number, the higher the chance of being blocked (rotating proxy should work)
-                country_indeed="Brazil",
-                is_remote=self.transpose_from_dict(remote_options_dict, self.selected_options["remote_options"])[0],
-                offset=25, # Search for more results if you don't find enough jobs
+                site_name=search_data["site_name"],
+                job_type=search_data["job_type"],
+                search_term=search_data["search_term"],
+                location=search_data["location"],
+                results_wanted=search_data["results_wanted"],
+                is_remote=search_data["is_remote"],
+                offset=search_data["offset"],
+                # proxy=proxy,
+                country_indeed=search_data["country_indeed"],
             )
         except Exception as e:
             print(e)
@@ -250,3 +271,21 @@ class JobScraper():
         finally:
             return self.jobs
         
+
+if __name__ == "__main__":
+
+    # formatting for pandas
+    pd.set_option("display.max_columns", None)
+    pd.set_option("display.max_rows", None)
+    pd.set_option("display.width", None)
+    pd.set_option("display.max_colwidth", 50)  # set to 0 to see full job url / desc
+
+    scraper = JobScraper()
+    scraper.set_options("site_names", ["LinkedIn", "Indeed"])
+    scraper.set_options("job_types", ["Tempo integral"])
+    scraper.set_options("locations", ["Rio de Janeiro"])
+    scraper.set_options("keywords", ["Python", "Sem experiência"])
+    # scraper.set_options("keywords", ["Python"])
+    scraper.set_options("remote_options", ["Trabalho remoto"])
+    scraper.get_jobs(verbose=True)
+    print(scraper.jobs)

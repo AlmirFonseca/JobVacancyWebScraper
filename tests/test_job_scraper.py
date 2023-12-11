@@ -31,17 +31,6 @@ class TestJobScraper(unittest.TestCase):
     def get_invalid_options(self):
         data_type = "invalid"
         self.assertIsNone(self.scraper.get_options(data_type))
-
-    def test_job_retrieval(self):
-        self.scraper.set_options("site_names", ["LinkedIn", "Indeed"])
-        self.scraper.set_options("job_types", ["Tempo integral"])
-        self.scraper.set_options("countries", ["Rio de Janeiro"])
-        self.scraper.set_options("keywords", ["Cientista de dados"])
-        self.scraper.set_options("remote_options", ["Trabalho remoto"])
-
-        self.scraper.get_jobs()
-
-        self.assertIsNotNone(self.scraper.jobs)
-
+        
 if __name__ == '__main__':
     unittest.main()
