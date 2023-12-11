@@ -5,11 +5,10 @@ sys.path.append('./src/pages/')
 
 from tkinter import ttk
 
-from pages import (StartPage, LoginPage, ForgotPasswordPage, 
-                   SignUpPage, CompentenciesPage, SeniorityLevelPage, 
-                   HomePage, UserPage, AddCurriculumPage, JobListPage)
+from page_factory import PageFactory
 
 DIMS = "800x600"
+
 
 class AppController(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -29,20 +28,17 @@ class AppController(tk.Tk):
         # Set the dimensions of the window
         self.geometry(DIMS)
 
-        self.frames = {}
-        # for F in (StartPage, LoginPage, SignUpPage, UserPage):
-        for F in (StartPage, LoginPage, ForgotPasswordPage, 
-                  SignUpPage, CompentenciesPage, SeniorityLevelPage, 
-                  HomePage, UserPage, AddCurriculumPage, JobListPage):
-            frame = F(container, self)
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
+        self.page_factory = PageFactory(container, self)
 
-        self.show_frame(StartPage)
+        self.show_frame("StartPage")
 
-    def show_frame(self, cont):
-
-        frame = self.frames[cont]
+    def show_frame(self, cont: str) -> None:
+        """
+        Show frame
+        Args:
+            cont(str): Frame type
+        """
+        frame = self.page_factory.create_page(cont)
         if cont == UserPage:
             frame.update_info()
         frame.tkraise()
