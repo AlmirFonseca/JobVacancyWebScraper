@@ -11,8 +11,11 @@ from uuid import uuid4
 
 from user import User
 from file_link import FileLink
+from skill import Skill
 from user_dao import create, get_by_email, update
 from file_link_dao import create_file_link
+from skill_dao import get_skills
+from user_skill_dao import create_user_skill, get_user_skills_by_user_id, delete_user_skill
 
 
 logged_user = None
@@ -356,15 +359,25 @@ class CompentenciesPage(ttk.Frame):
     def submit_selection(self):
 
         selected_competencies =[compentency for compentency, value in self.selected_compentencies.items() if value.get()]
-        print(selected_competencies)
 
         # If there is no selected competency, show a message box with an error
         if len(selected_competencies) == 0:
             messagebox.showerror("Erro", "Selecione pelo menos uma competência")
             return
-        else:
-            # Go to the seniority level page
-            self.controller.show_frame("SeniorityLevelPage")
+
+        skills = get_skills(token=logged_user.token)
+        user_skills = get_user_skills_by_user_id(logged_user._id, token=logged_user.token)
+        user_skill_ids = [user_skill[1] for user_skill in user_skills]
+        for skill in skills:
+            is_selected = skill.name in selected_competencies
+            is_in_bd = skill._id in user_skill_ids
+            if is_selected and not is_in_bd:
+                create_user_skill(logged_user._id, skill._id, token=logged_user.token)
+            elif not is_selected and is_in_bd:
+                delete_user_skill(logged_user._id, skill._id, token=logged_user.token)
+            
+        # Go to the seniority level page
+        self.controller.show_frame("SeniorityLevelPage")
 
 
 class SeniorityLevelPage(ttk.Frame):
