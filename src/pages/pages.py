@@ -8,7 +8,7 @@ from emailer import Emailer
 from tkinter import messagebox, ttk
 from time import sleep
 from uuid import uuid4
-
+from smtplib import SMTPAuthenticationError
 from user import User
 from file_link import FileLink
 from user_dao import create, get_by_email, update
@@ -111,7 +111,7 @@ class ForgotPasswordPage(ttk.Frame):
         ttk.Frame.__init__(self, parent)
         self.controller = controller
         # Create a label and button
-        label = ttk.Label(self, text="Change Password")
+        label = ttk.Label(self, text="Troque de senha")
 
         # Change font size
         label.config(font=("Courier", 30))
@@ -120,7 +120,7 @@ class ForgotPasswordPage(ttk.Frame):
         # Frame for Email Address Input
         self.email_frame = ttk.Frame(self)
         self.reset_code = None
-        ttk.Label(self.email_frame, text="Enter your email address").pack()
+        ttk.Label(self.email_frame, text="Digite seu endereço e-mail").pack()
         self.email_entry = ttk.Entry(self.email_frame)
         self.email_entry.pack()
         self.email_submit = ttk.Button(self.email_frame, text="Submit",
@@ -131,7 +131,7 @@ class ForgotPasswordPage(ttk.Frame):
         # Frame for Code Verification
         self.code_frame = ttk.Frame(self)
         
-        ttk.Label(self.code_frame, text="Enter the code you received").pack() 
+        ttk.Label(self.code_frame, text="Digite o código recebido").pack() 
         self.recovery_code_label = ttk.Label(self.code_frame)
         self.recovery_code_label.pack()
         self.code_entry = ttk.Entry(self.code_frame) # Add a code structure validation callback
@@ -161,20 +161,33 @@ class ForgotPasswordPage(ttk.Frame):
         email = self.email_entry.get()
         emailer = Emailer()
         if emailer.is_valid_email(email):
+            user = get_by_email(email)
+            if user is None:
+                messagebox.showerror("Erro", "Email não cadastrado")
+                self.controller.show_frame("LoginPage")
+                return
+            
+            global logged_user
+            logged_user = user
             print('enviando e-mail')
-            # self.reset_code = secrets.randbelow(1_000_000)
-            # emailer.send_email(to_email=email, subject="Recovery code Job Scraper",
-            #                    body=f"Recovery code: {self.reset_code:06d}")
+            
             self.reset_code = secrets.randbelow(1_000_000)
-            emailer.mock_send_email(to_email=email, subject="Recovery code Job Scraper",
-                               body=f"Recovery code: {self.reset_code:06d}")
+            try:
+                emailer.send_email(to_email=email, subject="Código de recuperação Job Scraper",
+                                body=f"Código de recuperação: {self.reset_code:06d}\nVolte para o app e digite o código.")
+                string_recovery_code = ''
+            except SMTPAuthenticationError:
+                # o provedor de email pode bloquear o email
+                # nesse caso, usamos um mock para enviar o email só para simular a funcionalidade
+                emailer.mock_send_email(to_email=email, subject="Código de recuperação Job Scraper",
+                               body=f"Código de recuperação: {self.reset_code:06d}\nVolte para o app e digite o código.")
+                string_recovery_code = f"Código: {self.reset_code:06d} (tivemos que usar um mock para enviar o e-mail)"
             # Hide the email frame and show the code frame
             self.email_frame.pack_forget()
             self.code_frame.pack()
-            string_recovery_code = f"Code: {self.reset_code:06d} (não estamos enviando emails para não bloquear o endereço de email)"
             self.recovery_code_label.config(text=string_recovery_code)
         else:
-            messagebox.showinfo("Error", "Invalid e-mail ")
+            messagebox.showerror("Erro", "E-mail inválido")
         
         # enable the email_submit button
         self.email_submit.config(state="normal")
@@ -186,7 +199,7 @@ class ForgotPasswordPage(ttk.Frame):
     def verify_code(self):
         code = self.code_entry.get()
         if code != f"{self.reset_code:06d}":
-            messagebox.showinfo("Error", "Invalid code")
+            messagebox.showerror("Erro", "Código inválido")
         else:
             # Hide the code frame and show the reset frame
             self.code_frame.pack_forget()
@@ -195,16 +208,18 @@ class ForgotPasswordPage(ttk.Frame):
     def reset_password(self):
         new_password = self.new_password_entry.get()
         confirm_password = self.confirm_password_entry.get()
+        if len(new_password) < 1:
+            messagebox.showerror("Erro", "Senha inválida")
         if new_password == confirm_password:
             global logged_user
             logged_user.password = User.generate_key(new_password)
             logged_user = update(logged_user, token=logged_user.token)
-            messagebox.showinfo("Success", "Password reset successfully")
+            messagebox.showinfo("Successo", "Senha trocada com sucesso")
             self.reset_frame.pack_forget()
             self.email_frame.pack()
             self.controller.show_frame("LoginPage")
         else:
-            messagebox.showerror("Error", "Passwords do not match")
+            messagebox.showerror("Error", "Senhas não são iguais")
 
 
 class SignUpPage(ttk.Frame):
