@@ -824,7 +824,7 @@ class JobListPage(ttk.Frame):
         if len(self.emails)>0: 
             for email in self.emails:
                 try:
-                    emailer.mock_send_email(to_email=email, subject="Encontrei sua vaga Usando o Job Scraper",
+                    emailer.send_email(to_email=email, subject="Encontrei sua vaga Usando o Job Scraper",
                                     body=email_content)
                     string_recovery_code = ''
                 except SMTPAuthenticationError:
