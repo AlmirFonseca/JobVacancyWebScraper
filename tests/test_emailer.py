@@ -40,7 +40,7 @@ class TestEmailer(unittest.TestCase):
         instance = mock_smtp.return_value
 
         # check if the login, sendmail, and quit methods were called with the correct arguments
-        instance.__enter__().login.assert_called_with(user='job.web.scraper@gmx.com', password=emailer.password)
+        instance.__enter__().login.assert_called_with(user=emailer.address, password=emailer.password)
         instance.__exit__.assert_called_once()
 
         # get the arguments that send_message was called with
