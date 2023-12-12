@@ -8,7 +8,7 @@ from emailer import Emailer
 from tkinter import messagebox, ttk
 from time import sleep
 from uuid import uuid4
-
+from smtplib import SMTPAuthenticationError
 from user import User
 from file_link import FileLink
 from user_dao import create, get_by_email, update
@@ -162,16 +162,21 @@ class ForgotPasswordPage(ttk.Frame):
         emailer = Emailer()
         if emailer.is_valid_email(email):
             print('enviando e-mail')
-            # self.reset_code = secrets.randbelow(1_000_000)
-            # emailer.send_email(to_email=email, subject="Recovery code Job Scraper",
-            #                    body=f"Recovery code: {self.reset_code:06d}")
+            
             self.reset_code = secrets.randbelow(1_000_000)
-            emailer.mock_send_email(to_email=email, subject="Recovery code Job Scraper",
+            try:
+                emailer.send_email(to_email=email, subject="Recovery code Job Scraper",
+                                body=f"Recovery code: {self.reset_code:06d}")
+                string_recovery_code = ''
+            except SMTPAuthenticationError:
+                # o provedor de email pode bloquear o email
+                # nesse caso, usamos um mock para enviar o email só para simular a funcionalidade
+                emailer.mock_send_email(to_email=email, subject="Recovery code Job Scraper",
                                body=f"Recovery code: {self.reset_code:06d}")
+                string_recovery_code = f"Code: {self.reset_code:06d} (tivemos que usar um mock para enviar o e-mail)"
             # Hide the email frame and show the code frame
             self.email_frame.pack_forget()
             self.code_frame.pack()
-            string_recovery_code = f"Code: {self.reset_code:06d} (não estamos enviando emails para não bloquear o endereço de email)"
             self.recovery_code_label.config(text=string_recovery_code)
         else:
             messagebox.showinfo("Error", "Invalid e-mail ")
