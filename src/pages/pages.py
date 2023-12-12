@@ -686,7 +686,7 @@ class AddCurriculumPage(ttk.Frame):
 
     def add_curriculum(self, curriculum_link):
         file_link = get_file_links_by_user_id(logged_user._id, token=logged_user.token)
-        if len(file_link) > 0:
+        if file_link is not None and len(file_link) > 0:
             file_link = file_link[0]
             file_link.link = curriculum_link
             file_link = update_file_link(file_link, token=logged_user.token)
@@ -779,7 +779,7 @@ class JobListPage(ttk.Frame):
         # Pack the canvas and scrollbar on the left panel
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
-
+        self.emails = []
         # Add job data to the scrollable frame as cards
         for _, job in jobs.iterrows():
             self.create_job_card(job)
@@ -792,6 +792,8 @@ class JobListPage(ttk.Frame):
         ttk.Label(card_frame, text=job['title'], font=('Arial', 16, 'bold')).pack(anchor='w', fill='x')
         ttk.Label(card_frame, text=job['company'], font=('Arial', 14)).pack(anchor='w', fill='x')
         ttk.Label(card_frame, text=job['location'], font=('Arial', 12)).pack(anchor='w', fill='x')
+        if "emails" in job and job['emails'] is not None:
+            self.emails.append(job['emails'])
         link_label = ttk.Label(card_frame, text=job['job_url'], font=('Arial', 10), foreground='blue', cursor='hand2')
         link_label.pack(anchor='w', fill='x')
         link_label.bind("<Button-1>", lambda e, link=job['job_url']: self.open_link(link))
@@ -812,8 +814,27 @@ class JobListPage(ttk.Frame):
         """Function to handle sending an email."""
         # Here you would implement the functionality to send an email
         # For now, it will simply print the email text to the console
-        email_content = self.email_text.get("1.0", tk.END)
-        # Show a message box
-        messagebox.showinfo("Email", email_content)
+        email_content = self.email_text.get('1.0', tk.END)
+        if logged_user is not None:
+            curriculum = get_file_links_by_user_id(logged_user._id,token=logged_user.token)
+            if curriculum is not None:
+                email_content +="\nLink para o meu currículo: "+curriculum[0].name
+        
+        emailer = Emailer()
+        if len(self.emails)>0: 
+            for email in self.emails:
+                try:
+                    emailer.mock_send_email(to_email=email, subject="Encontrei sua vaga Usando o Job Scraper",
+                                    body=email_content)
+                    string_recovery_code = ''
+                except SMTPAuthenticationError:
+                    # o provedor de email pode bloquear o email
+                    # nesse caso, usamos um mock para enviar o email só para simular a funcionalidade
+                    emailer.mock_send_email(to_email=email, subject="Encontrei sua vaga Usando o Job Scraper",
+                                    body=email_content)
+                messagebox.showinfo("Email", f"Email enviado com sucesso para {email}")
+        else: 
+            messagebox.showerror("Erro", "nenhuma empresa tem email registrado.")
+                
 
 # TODO: add placeholders on the entry fields (ex: email)
