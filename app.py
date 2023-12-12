@@ -27,6 +27,7 @@ class AppController(tk.Tk):
 
         # Set the dimensions of the window
         self.geometry(DIMS)
+        self.resizable(0, 0)
 
         self.page_factory = PageFactory(container, self)
 

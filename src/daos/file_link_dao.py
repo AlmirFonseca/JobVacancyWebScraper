@@ -22,7 +22,7 @@ def create_file_link(file_link: FileLink, *args, **kargs) -> FileLink:
     return file_link
 
 @valida_autenticacao
-def get_file_links_by_user_id(user_id: int, *args, **kargs):
+def get_file_links_by_user_id(user_id: int, *args, **kargs) -> list:
     """
     Gets file_links from the database by their user id.
     Args:

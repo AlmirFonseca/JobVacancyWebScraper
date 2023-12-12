@@ -1,18 +1,22 @@
 import tkinter as tk
+import pandas as pd
+import webbrowser
 import secrets
 import sys
 sys.path.append('./src/emailer')
 sys.path.append('./src/models')
 sys.path.append('./src/daos')
+sys.path.append('./src/job_scraper')
 from emailer import Emailer
 from tkinter import messagebox, ttk
 from time import sleep
 from uuid import uuid4
 
+from job_scraper import JobScraper
 from user import User
 from file_link import FileLink
 from user_dao import create, get_by_email, update
-from file_link_dao import create_file_link
+from file_link_dao import create_file_link, get_file_links_by_user_id, update_file_link
 from skill_dao import get_skills
 from user_skill_dao import create_user_skill, get_user_skills_by_user_id, delete_user_skill
 
@@ -127,6 +131,9 @@ class ForgotPasswordPage(ttk.Frame):
                                  command=lambda: self.send_recovery_code())
         self.email_submit.pack(pady=50)
         self.email_frame.pack()
+        
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("StartPage"))
+        button.pack(pady=10, padx=10)
 
         # Frame for Code Verification
         self.code_frame = ttk.Frame(self)
@@ -142,6 +149,9 @@ class ForgotPasswordPage(ttk.Frame):
         resend_code = ttk.Button(self.code_frame, text="Resend Code",
                                 command=lambda: self.resend_recovery_code())
         resend_code.pack()
+        
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("StartPage"))
+        button.pack(pady=10, padx=10)
 
         # Frame for Password Reset
         self.reset_frame = ttk.Frame(self)
@@ -154,6 +164,9 @@ class ForgotPasswordPage(ttk.Frame):
         reset_submit = ttk.Button(self.reset_frame, text="Reset Password",
                                  command=lambda: self.reset_password())
         reset_submit.pack()
+        
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("StartPage"))
+        button.pack(pady=10, padx=10)
 
     def send_recovery_code(self):
         # disable the email_submit button
@@ -350,7 +363,7 @@ class CompentenciesPage(ttk.Frame):
         button.grid(row=num_rows + 3, column=0, columnspan=3, pady=50)
 
         # Button to go back to the login page
-        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("LoginPage"))
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("HomePage"))
         button.grid(row=num_rows + 4, column=0, columnspan=3, pady=10)
 
     def submit_selection(self):
@@ -411,7 +424,7 @@ class SeniorityLevelPage(ttk.Frame):
         button.grid(row=len(self.seniority_levels)+2, column=0, columnspan=3, pady=50, padx=10)
 
         # Button to go back to the login page
-        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("LoginPage"))
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("HomePage"))
         button.grid(row=len(self.seniority_levels)+3,column=0, columnspan=3, pady=20, padx=10)
         
     def submit_selection(self):
@@ -657,8 +670,14 @@ class AddCurriculumPage(ttk.Frame):
         button.pack(pady=60, padx=10)
 
     def add_curriculum(self, curriculum_link):
-        file_link = FileLink(curriculum_link, logged_user._id)
-        file_link = create_file_link(file_link, token=logged_user.token)
+        file_link = get_file_links_by_user_id(logged_user._id, token=logged_user.token)
+        if len(file_link) > 0:
+            file_link = file_link[0]
+            file_link.link = curriculum_link
+            file_link = update_file_link(file_link, token=logged_user.token)
+        else:
+            file_link = FileLink(curriculum_link, logged_user._id)
+            file_link = create_file_link(file_link, token=logged_user.token)
         
         messagebox.showinfo("Sucesso", "Currículo adicionado com sucesso")
 
@@ -667,12 +686,13 @@ class JobListPage(ttk.Frame):
 
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
-        
+        self.controller = controller
+         
         # Create a header with buttons
         header = ttk.Frame(self)
         header.pack()
 
-         # Button to go to the user page
+        # Button to go to the user page
         button = ttk.Button(header, text="Home",
                             command=lambda: controller.show_frame("HomePage"))
         button.pack(side="left", padx=30, pady=30)
@@ -687,13 +707,98 @@ class JobListPage(ttk.Frame):
                             command=lambda: controller.show_frame("SeniorityLevelPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
-        # Create a label and button
-        label = ttk.Label(self, text="Lista de vagas")
+        # Divide the frame into left and right panels
+        self.left_panel = ttk.Frame(self, width=400)
+        self.right_panel = ttk.Frame(self)
 
-        # Change font size
-        label.config(font=("Courier", 30))
-        label.pack(pady=60, padx=10)
+        self.left_panel.pack(side='left', fill='y')
+        self.right_panel.pack(side='right', fill='both', expand=True)
 
-        # TODO: add the logic to retrieve the jobs from the database (and show them on the screen)
+        # Create a label to be used while the job list dataframe is being made
+        self.loading_label = ttk.Label(self.left_panel, text="Buscando as melhores vagas para você...")
+        self.loading_label.pack(pady=10)
+
+        # Simulate asking for a dataframe of jobs
+        self.after(2000, self.load_data)
+
+    def load_data(self):
+        """Load the data from the dataframe into the GUI"""
+        user_skill_ids = get_user_skills_by_user_id(logged_user._id, token=logged_user.token)
+        skills_and_competency = [logged_user.level]
+        for user_skill_id in user_skill_ids:
+            skill_id = user_skill_id[1]
+            skill = get_skills(skill_id, token=logged_user.token)
+            skills_and_competency.append(skill)
+        
+        scraper = JobScraper()
+        scraper.set_options("site_names", ["LinkedIn", "Indeed"])
+        scraper.set_options("job_types", ["Tempo integral"])
+        scraper.set_options("locations", ["Rio de Janeiro"])
+        scraper.set_options("keywords", skills_and_competency)
+        scraper.set_options("remote_options", ["Trabalho remoto"])
+        scraper.get_jobs()
+        
+        jobs = scraper.jobs
+        
+        # Remove the loading label
+        self.loading_label.destroy()
+
+        # Call the function to display the data
+        self.display_data(jobs)
+
+        # Create widgets for the right panel
+        self.setup_right_panel()
+
+    def display_data(self, jobs):
+        """Display the data in the GUI as cards on the left panel"""
+        # Create a canvas and a scrollbar on the left panel
+        canvas = tk.Canvas(self.left_panel)
+        scrollbar = ttk.Scrollbar(self.left_panel, orient='vertical', command=canvas.yview)
+        self.scrollable_frame = ttk.Frame(canvas)
+
+        # Configure the canvas
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor='nw', width=400)
+
+        # Pack the canvas and scrollbar on the left panel
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.pack(side='right', fill='y')
+
+        # Add job data to the scrollable frame as cards
+        for _, job in jobs.iterrows():
+            self.create_job_card(job)
+
+    def create_job_card(self, job):
+        """Create a card for each job."""
+        card_frame = ttk.Frame(self.scrollable_frame, borderwidth=1, relief='solid', padding=10)
+        card_frame.pack(padx=10, pady=10, fill='x', expand=True)
+
+        ttk.Label(card_frame, text=job['title'], font=('Arial', 16, 'bold')).pack(anchor='w', fill='x')
+        ttk.Label(card_frame, text=job['company'], font=('Arial', 14)).pack(anchor='w', fill='x')
+        ttk.Label(card_frame, text=job['location'], font=('Arial', 12)).pack(anchor='w', fill='x')
+        link_label = ttk.Label(card_frame, text=job['job_url'], font=('Arial', 10), foreground='blue', cursor='hand2')
+        link_label.pack(anchor='w', fill='x')
+        link_label.bind("<Button-1>", lambda e, link=job['job_url']: self.open_link(link))
+
+    def open_link(self, link):
+        """Open a link in the web browser."""
+        webbrowser.open_new(link)
+
+    def setup_right_panel(self):
+        """Set up the right panel with a label, text entry, and a button."""
+        ttk.Label(self.right_panel, text="Envie um e-mail para as vagas selecionadas:").pack(pady=(20, 10))
+        self.email_text = tk.Text(self.right_panel, height=10)
+        self.email_text.pack(padx=20, pady=10, fill='x', expand=False)
+        self.send_email_button = ttk.Button(self.right_panel, text="Enviar", command=self.send_email)
+        self.send_email_button.pack(pady=10)
+
+    def send_email(self):
+        """Function to handle sending an email."""
+        # Here you would implement the functionality to send an email
+        # For now, it will simply print the email text to the console
+        email_content = self.email_text.get("1.0", tk.END)
+        # Show a message box
+        messagebox.showinfo("Email", email_content)
 
 # TODO: add placeholders on the entry fields (ex: email)
