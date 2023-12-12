@@ -49,7 +49,7 @@ class TestEmailer(unittest.TestCase):
         # check the content of the MIMEText object
         self.assertEqual(send_message_args[0].get_payload(), 'Message')
         self.assertEqual(send_message_args[0]['Subject'], 'Subject')
-        self.assertEqual(send_message_args[0]['From'], 'job.web.scraper@gmx.com')
+        self.assertEqual(send_message_args[0]['From'], emailer.address)
         self.assertEqual(send_message_args[0]['To'], 'job.web.scraper@gmx.com')
 
     def test_emailer_is_singleton(self):
