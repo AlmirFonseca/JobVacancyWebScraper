@@ -40,7 +40,7 @@ class TestEmailer(unittest.TestCase):
         instance = mock_smtp.return_value
 
         # check if the login, sendmail, and quit methods were called with the correct arguments
-        instance.__enter__().login.assert_called_with(user='job.web.scraper@gmx.com', password=emailer.password)
+        instance.__enter__().login.assert_called_with(user=emailer.address, password=emailer.password)
         instance.__exit__.assert_called_once()
 
         # get the arguments that send_message was called with
@@ -49,7 +49,7 @@ class TestEmailer(unittest.TestCase):
         # check the content of the MIMEText object
         self.assertEqual(send_message_args[0].get_payload(), 'Message')
         self.assertEqual(send_message_args[0]['Subject'], 'Subject')
-        self.assertEqual(send_message_args[0]['From'], 'job.web.scraper@gmx.com')
+        self.assertEqual(send_message_args[0]['From'], emailer.address)
         self.assertEqual(send_message_args[0]['To'], 'job.web.scraper@gmx.com')
 
     def test_emailer_is_singleton(self):

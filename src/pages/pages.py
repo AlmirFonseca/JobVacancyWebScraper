@@ -1,10 +1,27 @@
 import tkinter as tk
+import pandas as pd
+import webbrowser
 import secrets
 import sys
 sys.path.append('./src/emailer')
+sys.path.append('./src/models')
+sys.path.append('./src/daos')
+sys.path.append('./src/job_scraper')
 from emailer import Emailer
 from tkinter import messagebox, ttk
 from time import sleep
+from uuid import uuid4
+from smtplib import SMTPAuthenticationError
+from job_scraper import JobScraper
+from user import User
+from file_link import FileLink
+from user_dao import create, get_by_email, update
+from file_link_dao import create_file_link, get_file_links_by_user_id, update_file_link
+from skill_dao import get_skills
+from user_skill_dao import create_user_skill, get_user_skills_by_user_id, delete_user_skill
+
+
+logged_user = None
 
 
 class StartPage(ttk.Frame):
@@ -32,6 +49,7 @@ class StartPage(ttk.Frame):
 class LoginPage(ttk.Frame):
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
+        self.controller = controller
 
         # Create a label in left side
         label = ttk.Label(self, text="Iniciar sessão")
@@ -48,8 +66,6 @@ class LoginPage(ttk.Frame):
         email_entry = ttk.Entry(self)
         email_entry.pack()
 
-        # TODO: add a email validation callback
-
         # Password label
         password_label = ttk.Label(self, text="Senha")
         password_label.pack()
@@ -65,25 +81,41 @@ class LoginPage(ttk.Frame):
 
         # Sign in button
         button = ttk.Button(self, text="Entrar",
-                            command=lambda: print("Email: {}\nPassword: {}".format(email_entry.get(), password_entry.get())))
+                            command=lambda: self.login(email_entry.get(), password_entry.get()))
         # Change font
         button.pack(pady=10)
 
-        # TODO: add a login validation on database callback
-
         # Sign up button
         button = ttk.Button(self, text="Não tem conta? Cadastre-se",
-                            command=lambda _: controller.show_frame("SignUpPage"))
+                            command=lambda: controller.show_frame("SignUpPage"))
 
         button.pack(padx=100, pady=100, ipadx=20)
+    
+    def login(self, email, password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+    
+        user = get_by_email(email)
+        if user is None:
+            messagebox.showerror("Erro", "Email não cadastrado")
+            return
 
+        if not user.check_password(password):
+            messagebox.showerror("Erro", "Senha incorreta")
+            return
+        
+        global logged_user
+        logged_user = user
+        self.controller.show_frame("HomePage")
+    
 
 class ForgotPasswordPage(ttk.Frame):
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
         self.controller = controller
         # Create a label and button
-        label = ttk.Label(self, text="Change Password")
+        label = ttk.Label(self, text="Troque de senha")
 
         # Change font size
         label.config(font=("Courier", 30))
@@ -92,18 +124,21 @@ class ForgotPasswordPage(ttk.Frame):
         # Frame for Email Address Input
         self.email_frame = ttk.Frame(self)
         self.reset_code = None
-        ttk.Label(self.email_frame, text="Enter your email address").pack()
-        self.email_entry = ttk.Entry(self.email_frame)  # TODO: add email validation callback
+        ttk.Label(self.email_frame, text="Digite seu endereço e-mail").pack()
+        self.email_entry = ttk.Entry(self.email_frame)
         self.email_entry.pack()
         self.email_submit = ttk.Button(self.email_frame, text="Submit",
                                  command=lambda: self.send_recovery_code())
         self.email_submit.pack(pady=50)
         self.email_frame.pack()
+        
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("StartPage"))
+        button.pack(pady=10, padx=10)
 
         # Frame for Code Verification
         self.code_frame = ttk.Frame(self)
         
-        ttk.Label(self.code_frame, text="Enter the code you received").pack() 
+        ttk.Label(self.code_frame, text="Digite o código recebido").pack() 
         self.recovery_code_label = ttk.Label(self.code_frame)
         self.recovery_code_label.pack()
         self.code_entry = ttk.Entry(self.code_frame) # Add a code structure validation callback
@@ -114,6 +149,9 @@ class ForgotPasswordPage(ttk.Frame):
         resend_code = ttk.Button(self.code_frame, text="Resend Code",
                                 command=lambda: self.resend_recovery_code())
         resend_code.pack()
+        
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("StartPage"))
+        button.pack(pady=10, padx=10)
 
         # Frame for Password Reset
         self.reset_frame = ttk.Frame(self)
@@ -122,10 +160,13 @@ class ForgotPasswordPage(ttk.Frame):
         self.new_password_entry.pack() # TODO: add a password validation callback
         tk.Label(self.reset_frame, text="Confirm your new password").pack()
         self.confirm_password_entry = ttk.Entry(self.reset_frame, show="*")
-        self.confirm_password_entry.pack() # TODO: add a password match validation callback
+        self.confirm_password_entry.pack()
         reset_submit = ttk.Button(self.reset_frame, text="Reset Password",
                                  command=lambda: self.reset_password())
         reset_submit.pack()
+        
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("StartPage"))
+        button.pack(pady=10, padx=10)
 
     def send_recovery_code(self):
         # disable the email_submit button
@@ -133,20 +174,33 @@ class ForgotPasswordPage(ttk.Frame):
         email = self.email_entry.get()
         emailer = Emailer()
         if emailer.is_valid_email(email):
+            user = get_by_email(email)
+            if user is None:
+                messagebox.showerror("Erro", "Email não cadastrado")
+                self.controller.show_frame("LoginPage")
+                return
+            
+            global logged_user
+            logged_user = user
             print('enviando e-mail')
-            # self.reset_code = secrets.randbelow(1_000_000)
-            # emailer.send_email(to_email=email, subject="Recovery code Job Scraper",
-            #                    body=f"Recovery code: {self.reset_code:06d}")
+            
             self.reset_code = secrets.randbelow(1_000_000)
-            emailer.mock_send_email(to_email=email, subject="Recovery code Job Scraper",
-                               body=f"Recovery code: {self.reset_code:06d}")
+            try:
+                emailer.send_email(to_email=email, subject="Código de recuperação Job Scraper",
+                                body=f"Código de recuperação: {self.reset_code:06d}\nVolte para o app e digite o código.")
+                string_recovery_code = ''
+            except SMTPAuthenticationError:
+                # o provedor de email pode bloquear o email
+                # nesse caso, usamos um mock para enviar o email só para simular a funcionalidade
+                emailer.mock_send_email(to_email=email, subject="Código de recuperação Job Scraper",
+                               body=f"Código de recuperação: {self.reset_code:06d}\nVolte para o app e digite o código.")
+                string_recovery_code = f"Código: {self.reset_code:06d} (tivemos que usar um mock para enviar o e-mail)"
             # Hide the email frame and show the code frame
             self.email_frame.pack_forget()
             self.code_frame.pack()
-            string_recovery_code = f"Code: {self.reset_code:06d} (não estamos enviando emails para não bloquear o endereço de email)"
             self.recovery_code_label.config(text=string_recovery_code)
         else:
-            messagebox.showinfo("Error", "Invalid e-mail ")
+            messagebox.showerror("Erro", "E-mail inválido")
         
         # enable the email_submit button
         self.email_submit.config(state="normal")
@@ -158,7 +212,7 @@ class ForgotPasswordPage(ttk.Frame):
     def verify_code(self):
         code = self.code_entry.get()
         if code != f"{self.reset_code:06d}":
-            messagebox.showinfo("Error", "Invalid code")
+            messagebox.showerror("Erro", "Código inválido")
         else:
             # Hide the code frame and show the reset frame
             self.code_frame.pack_forget()
@@ -167,14 +221,18 @@ class ForgotPasswordPage(ttk.Frame):
     def reset_password(self):
         new_password = self.new_password_entry.get()
         confirm_password = self.confirm_password_entry.get()
+        if len(new_password) < 1:
+            messagebox.showerror("Erro", "Senha inválida")
         if new_password == confirm_password:
-            # TODO: add password reset logic
-            messagebox.showinfo("Success", "Password reset successfully")
+            global logged_user
+            logged_user.password = User.generate_key(new_password)
+            logged_user = update(logged_user, token=logged_user.token)
+            messagebox.showinfo("Successo", "Senha trocada com sucesso")
             self.reset_frame.pack_forget()
             self.email_frame.pack()
             self.controller.show_frame("LoginPage")
         else:
-            messagebox.showerror("Error", "Passwords do not match")
+            messagebox.showerror("Error", "Senhas não são iguais")
 
 
 class SignUpPage(ttk.Frame):
@@ -255,8 +313,19 @@ class SignUpPage(ttk.Frame):
         button.grid(row=9, column=0, columnspan=3, sticky="n", pady=50, padx=10)
 
     def sign_up(self, name, surname, username, email, password, confirm_password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+
+        if password != confirm_password:
+            messagebox.showerror("Erro", "As senhas não são iguais")
+            return
         
-        # TODO: add the sign up logic
+        token = str(uuid4())
+        global logged_user
+        logged_user = User(name, email, password, token, surname)
+        logged_user = create(logged_user)
+        
         # GO to the compentencies page
         self.controller.show_frame("CompentenciesPage")
 
@@ -309,21 +378,31 @@ class CompentenciesPage(ttk.Frame):
         button.grid(row=num_rows + 3, column=0, columnspan=3, pady=50)
 
         # Button to go back to the login page
-        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("LoginPage"))
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("HomePage"))
         button.grid(row=num_rows + 4, column=0, columnspan=3, pady=10)
 
     def submit_selection(self):
 
         selected_competencies =[compentency for compentency, value in self.selected_compentencies.items() if value.get()]
-        print(selected_competencies)
 
         # If there is no selected competency, show a message box with an error
         if len(selected_competencies) == 0:
             messagebox.showerror("Erro", "Selecione pelo menos uma competência")
             return
-        else:
-            # Go to the seniority level page
-            self.controller.show_frame("SeniorityLevelPage")
+
+        skills = get_skills(token=logged_user.token)
+        user_skills = get_user_skills_by_user_id(logged_user._id, token=logged_user.token)
+        user_skill_ids = [user_skill[1] for user_skill in user_skills]
+        for skill in skills:
+            is_selected = skill.name in selected_competencies
+            is_in_bd = skill._id in user_skill_ids
+            if is_selected and not is_in_bd:
+                create_user_skill(logged_user._id, skill._id, token=logged_user.token)
+            elif not is_selected and is_in_bd:
+                delete_user_skill(logged_user._id, skill._id, token=logged_user.token)
+            
+        # Go to the seniority level page
+        self.controller.show_frame("SeniorityLevelPage")
 
 
 class SeniorityLevelPage(ttk.Frame):
@@ -347,21 +426,21 @@ class SeniorityLevelPage(ttk.Frame):
         self.grid_columnconfigure(2, weight=2)
 
         # List of seniority levels
-        seniority_levels = ["Sem experiência", "Junior", "Pleno", "Sênior"]
+        self.seniority_levels = ["Sem experiência", "Junior", "Pleno", "Sênior"]
         # Dict to store the selected seniority level
         self.selected_seniority_level = tk.IntVar()
 
         # Radio buttons to select the seniority level
-        for i, seniority_level in enumerate(seniority_levels):
+        for i, seniority_level in enumerate(self.seniority_levels):
             ttk.Radiobutton(self, text=seniority_level, variable=self.selected_seniority_level, value=i).grid(row=i+2, column=0, columnspan=3, pady=5, padx=25, sticky="n")
 
         # Confirm button
         button = ttk.Button(self, text="Confirmar", command=lambda: self.submit_selection())
-        button.grid(row=len(seniority_levels)+2, column=0, columnspan=3, pady=50, padx=10)
+        button.grid(row=len(self.seniority_levels)+2, column=0, columnspan=3, pady=50, padx=10)
 
         # Button to go back to the login page
-        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("LoginPage"))
-        button.grid(row=len(seniority_levels)+3,column=0, columnspan=3, pady=20, padx=10)
+        button = ttk.Button(self, text="Voltar", command=lambda: controller.show_frame("HomePage"))
+        button.grid(row=len(self.seniority_levels)+3,column=0, columnspan=3, pady=20, padx=10)
         
     def submit_selection(self):
         selected_seniority_level = self.selected_seniority_level.get()
@@ -370,9 +449,16 @@ class SeniorityLevelPage(ttk.Frame):
         if selected_seniority_level == -1:
             messagebox.showerror("Erro", "Selecione um nível de senioridade")
             return
-        else:
-            # Go to the home page
-            self.controller.show_frame("HomePage")
+        
+        selected_seniority = self.seniority_levels[selected_seniority_level]
+        
+        global logged_user
+        if logged_user.level != selected_seniority:
+            logged_user.level = selected_seniority
+            logged_user = update(logged_user, token=logged_user.token)
+        
+        # Go to the home page
+        self.controller.show_frame("HomePage")
 
 
 class HomePage(ttk.Frame):
@@ -458,12 +544,10 @@ class UserPage(ttk.Frame):
         # Show the username, name and email
         username = ttk.Label(user_info_frame, text="Nome de usuário: ")
         username.pack(pady=5)
-        name = ttk.Label(user_info_frame, text="Nome completo: ")
-        name.pack(pady=5)
-        email = ttk.Label(user_info_frame, text="Email: ")
-        email.pack(pady=5)
-
-        # TODO: add the user information
+        self.name = ttk.Label(user_info_frame, text=f"Nome completo: {logged_user.name} {logged_user.last_name}")
+        self.name.pack(pady=5)
+        self.email = ttk.Label(user_info_frame, text=f"Email: {logged_user.email}")
+        self.email.pack(pady=5)
 
         # Frame to edit the user information (name, surname, username, email, password, confirm password)
         edit_user_frame = ttk.Frame(self)
@@ -535,10 +619,24 @@ class UserPage(ttk.Frame):
         button.pack(pady=100, padx=50)
         
     def edit_user(self, name, surname, username, email, password, confirm_password):
+        if not Emailer.is_valid_email(email):
+            messagebox.showerror("Erro", "Email inválido")
+            return
+        
+        if password != confirm_password:
+            messagebox.showerror("Erro", "As senhas não são iguais")
+            return
+        
+        global logged_user
+        logged_user.name = name
+        logged_user.last_name = surname
+        logged_user.username = username
+        logged_user.email = email
+        logged_user.password = User.generate_key(password)
+        
+        logged_user = update(logged_user)
 
-        pass
-
-        # TODO: add the logic to edit the user information, and show a message box with the result
+        messagebox.showinfo("Sucesso", "Usuário editado com sucesso")
 
 
 class AddCurriculumPage(ttk.Frame):
@@ -587,22 +685,29 @@ class AddCurriculumPage(ttk.Frame):
         button.pack(pady=60, padx=10)
 
     def add_curriculum(self, curriculum_link):
-
-        print(curriculum_link)
-
-        # TODO: add the logic to add the curriculum, and show a message box with the result        
+        file_link = get_file_links_by_user_id(logged_user._id, token=logged_user.token)
+        if file_link is not None and len(file_link) > 0:
+            file_link = file_link[0]
+            file_link.link = curriculum_link
+            file_link = update_file_link(file_link, token=logged_user.token)
+        else:
+            file_link = FileLink(curriculum_link, logged_user._id)
+            file_link = create_file_link(file_link, token=logged_user.token)
+        
+        messagebox.showinfo("Sucesso", "Currículo adicionado com sucesso")
 
 
 class JobListPage(ttk.Frame):
 
     def __init__(self, parent, controller):
         ttk.Frame.__init__(self, parent)
-        
+        self.controller = controller
+         
         # Create a header with buttons
         header = ttk.Frame(self)
         header.pack()
 
-         # Button to go to the user page
+        # Button to go to the user page
         button = ttk.Button(header, text="Home",
                             command=lambda: controller.show_frame("HomePage"))
         button.pack(side="left", padx=30, pady=30)
@@ -617,13 +722,119 @@ class JobListPage(ttk.Frame):
                             command=lambda: controller.show_frame("SeniorityLevelPage"))
         button.pack(side="left", padx=30, pady=30, ipadx=10)
 
-        # Create a label and button
-        label = ttk.Label(self, text="Lista de vagas")
+        # Divide the frame into left and right panels
+        self.left_panel = ttk.Frame(self, width=400)
+        self.right_panel = ttk.Frame(self)
 
-        # Change font size
-        label.config(font=("Courier", 30))
-        label.pack(pady=60, padx=10) 
+        self.left_panel.pack(side='left', fill='y')
+        self.right_panel.pack(side='right', fill='both', expand=True)
 
-        # TODO: add the logic to retrieve the jobs from the database (and show them on the screen)
+        # Create a label to be used while the job list dataframe is being made
+        self.loading_label = ttk.Label(self.left_panel, text="Buscando as melhores vagas para você...")
+        self.loading_label.pack(pady=10)
+
+        # Simulate asking for a dataframe of jobs
+        self.after(2000, self.load_data)
+
+    def load_data(self):
+        """Load the data from the dataframe into the GUI"""
+        user_skill_ids = get_user_skills_by_user_id(logged_user._id, token=logged_user.token)
+        skills_and_competency = [logged_user.level]
+        for user_skill_id in user_skill_ids:
+            skill_id = user_skill_id[1]
+            skill = get_skills(skill_id, token=logged_user.token)
+            skills_and_competency.append(skill)
+        
+        scraper = JobScraper()
+        scraper.set_options("site_names", ["LinkedIn", "Indeed"])
+        scraper.set_options("job_types", ["Tempo integral"])
+        scraper.set_options("locations", ["Rio de Janeiro"])
+        scraper.set_options("keywords", skills_and_competency)
+        scraper.set_options("remote_options", ["Trabalho remoto"])
+        scraper.get_jobs()
+        
+        jobs = scraper.jobs
+        
+        # Remove the loading label
+        self.loading_label.destroy()
+
+        # Call the function to display the data
+        self.display_data(jobs)
+
+        # Create widgets for the right panel
+        self.setup_right_panel()
+
+    def display_data(self, jobs):
+        """Display the data in the GUI as cards on the left panel"""
+        # Create a canvas and a scrollbar on the left panel
+        canvas = tk.Canvas(self.left_panel)
+        scrollbar = ttk.Scrollbar(self.left_panel, orient='vertical', command=canvas.yview)
+        self.scrollable_frame = ttk.Frame(canvas)
+
+        # Configure the canvas
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor='nw', width=400)
+
+        # Pack the canvas and scrollbar on the left panel
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.pack(side='right', fill='y')
+        self.emails = []
+        # Add job data to the scrollable frame as cards
+        for _, job in jobs.iterrows():
+            self.create_job_card(job)
+
+    def create_job_card(self, job):
+        """Create a card for each job."""
+        card_frame = ttk.Frame(self.scrollable_frame, borderwidth=1, relief='solid', padding=10)
+        card_frame.pack(padx=10, pady=10, fill='x', expand=True)
+
+        ttk.Label(card_frame, text=job['title'], font=('Arial', 16, 'bold')).pack(anchor='w', fill='x')
+        ttk.Label(card_frame, text=job['company'], font=('Arial', 14)).pack(anchor='w', fill='x')
+        ttk.Label(card_frame, text=job['location'], font=('Arial', 12)).pack(anchor='w', fill='x')
+        if "emails" in job and job['emails'] is not None:
+            self.emails.append(job['emails'])
+        link_label = ttk.Label(card_frame, text=job['job_url'], font=('Arial', 10), foreground='blue', cursor='hand2')
+        link_label.pack(anchor='w', fill='x')
+        link_label.bind("<Button-1>", lambda e, link=job['job_url']: self.open_link(link))
+
+    def open_link(self, link):
+        """Open a link in the web browser."""
+        webbrowser.open_new(link)
+
+    def setup_right_panel(self):
+        """Set up the right panel with a label, text entry, and a button."""
+        ttk.Label(self.right_panel, text="Envie um e-mail para as vagas selecionadas:").pack(pady=(20, 10))
+        self.email_text = tk.Text(self.right_panel, height=10)
+        self.email_text.pack(padx=20, pady=10, fill='x', expand=False)
+        self.send_email_button = ttk.Button(self.right_panel, text="Enviar", command=self.send_email)
+        self.send_email_button.pack(pady=10)
+
+    def send_email(self):
+        """Function to handle sending an email."""
+        # Here you would implement the functionality to send an email
+        # For now, it will simply print the email text to the console
+        email_content = self.email_text.get('1.0', tk.END)
+        if logged_user is not None:
+            curriculum = get_file_links_by_user_id(logged_user._id,token=logged_user.token)
+            if curriculum is not None:
+                email_content +="\nLink para o meu currículo: "+curriculum[0].name
+        
+        emailer = Emailer()
+        if len(self.emails)>0: 
+            for email in self.emails:
+                try:
+                    emailer.send_email(to_email=email, subject="Encontrei sua vaga Usando o Job Scraper",
+                                    body=email_content)
+                    string_recovery_code = ''
+                except SMTPAuthenticationError:
+                    # o provedor de email pode bloquear o email
+                    # nesse caso, usamos um mock para enviar o email só para simular a funcionalidade
+                    emailer.mock_send_email(to_email=email, subject="Encontrei sua vaga Usando o Job Scraper",
+                                    body=email_content)
+                messagebox.showinfo("Email", f"Email enviado com sucesso para {email}")
+        else: 
+            messagebox.showerror("Erro", "nenhuma empresa tem email registrado.")
+                
 
 # TODO: add placeholders on the entry fields (ex: email)
